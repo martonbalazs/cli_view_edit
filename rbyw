@@ -1,0 +1,369 @@
+#!/bin/bash
+# Idea comes from Spritz http://www.spritzinc.com/
+# Read by word (rbyw)
+# Don't know how Spritz decides on positioning and character centering, I just put the word to the middle and color the middle character.
+#
+# Usage: rbyw [file or url]
+# URL's have to start with "http://".
+#
+# Uses html2text, pdftotext, catdoc, docx2txt for various file formats. Need to have these installed for the corresponding file format!
+# http://docx2txt.cvs.sourceforge.net/docx2txt/
+# Requires gawk for proper utf handling, plain awk doesn't do it right.
+#
+# Keystrokes:
+# ,/4: decrease speed
+# ./6: increase speed
+# t/8: turbo speed (* turboval)
+# [space]/0: pause, then b/1: roll back one, f/3: roll forward one. B: roll back 100 words, F: roll forward 100 words.
+# q: quit
+#
+# Thanks to Ferenc Wettl for the coloring tips and the link:
+# http://misc.flogisoft.com/bash/tip_colors_and_formatting
+# see also http://unix.stackexchange.com/questions/19248/bash-color-output-fails for escaping sed for color commands.
+
+# Files we can handle
+fts="txt pdf html htm doc docx rtf"
+
+# Turbo acceleration *:
+turboval=2.5
+
+function exitcl {
+ cd -
+
+ l=1
+ while [ -n "$l" ]; do
+  sleep 1
+  l=`lsof +d /tmp/$k`
+ done
+
+ rm -f -R /tmp/$k
+ exit
+}
+
+# Bash parameter expansion
+veg=${1##*.}
+elej=${1%.*}
+urlh=${1%:*}
+
+# If we have a file: copy to /tmp
+if [[ $fts =~ $veg ]] && [[ -f "$1" ]]; then
+ k=v3$elej`date +%N`
+ mkdir /tmp/$k
+ chmod 700 /tmp/$k/
+ cp "$1" /tmp/$k
+ cd /tmp/$k
+
+# If we have an url (http:******) then wget with / or without /, then copy to /tmp.
+elif [[ "$urlh" == "http" ]]; then
+ k=v3`date +%N`
+ mkdir /tmp/$k
+ chmod 700 /tmp/$k/
+ cd /tmp/$k
+ wget "$1/"
+ if [[ "$?" != 0 ]]; then
+  wget "$1"
+  if [[ "$?" != 0 ]]; then
+   echo "Can't find $1."
+   exitcl
+  fi
+ fi
+
+# If no file, no url:
+else
+ echo "$elej.[$fts] not found."
+ exit
+fi
+
+# Look at all files in the /tmp dir:
+
+for i in *; do
+
+ veg=${i##*.}
+ elej=${i%.*}
+
+# Maybe the file is not our favourite (from wget)
+ if [[ ! $fts =~ $veg ]]; then
+  echo "$i is none of these types: $fts."
+  continue
+ fi
+
+ if [[ $veg == "html" ]]; then
+  command -v html2text > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   echo "I need html2text but I can't find it."
+   exitcl
+  fi
+  html2text -o "$elej".txt "$elej".html
+ elif [[ $veg == "htm" ]]; then
+  command -v html2text > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   echo "I need html2text but I can't find it."
+   exitcl
+  fi
+  html2text -o "$elej".txt "$elej".htm
+ elif [[ $veg == "pdf" ]]; then
+  command -v pdftotext > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   echo "I need pdftotext but I can't find it."
+   exitcl
+  fi
+  pdftotext "$elej".pdf
+ elif [[ $veg == "doc" ]]; then
+  command -v catdoc > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   echo "I need catdoc but I can't find it."
+   exitcl
+  fi
+  catdoc "$elej".doc > "$elej".txt
+ elif [[ $veg == "docx" ]]; then
+  command -v docx2txt.sh > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   command -v docx2txt > /dev/null 2>&1
+   if [ "$?" -ne "0" ]; then
+    echo "I need docx2txt but I can't find it."
+    exitcl
+   fi
+  fi
+  command -v docx2txt.sh > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+   docx2txt.sh "$elej".docx
+  fi
+  command -v docx2txt > /dev/null 2>&1
+  if [ "$?" == "0" ]; then
+   docx2txt "$elej".docx
+  fi
+ elif [[ $veg == "rtf" ]]; then
+  command -v catdoc > /dev/null 2>&1
+  if [ "$?" -ne "0" ]; then
+   echo "I need catdoc but I can't find it."
+   exitcl
+  fi
+  catdoc "$elej".rtf > "$elej".txt
+ fi
+ cat "$elej".txt |
+ 
+ # Put words in separate lines (various [space]s, tabs,... junk is coming with copypaste from pdf's. :-( )
+ 
+ sed 's/--*/- /g' |
+ sed 's/ / /g' |
+ sed 's/ / /g' |
+ sed 's/	/ /g' |
+ sed 's/  */\n/g' |
+ 
+ # Center words. Couldn't get this straight with unicode characters and awk. :-( Works fine with gawk.
+ awk '
+ function ceil(valor)
+ {
+  return (valor == int(valor)) ? valor : int(valor)
+ }
+ {
+  l=length($0)
+  s=ceil((80-l)/2)
+  for (i=1; i<=s; i++) printf(" ")
+  print($0)
+ 
+ # Repeat lines at ., , etc to slow down
+  if (/[.,):;?!]$/) {
+   for (i=1; i<=s; i++) printf(" ")
+   print($0)
+  }
+ }
+ ' > "$elej".rbyw
+ 
+ # Number of lines in centered file:
+ no=`wc -l "$elej".rbyw | awk '{ print($1) }'`
+ 
+ # Set initial speed
+ wpm=50
+ i=0
+ dousp=0
+ clear
+ while [ $i -lt $no ]
+ do
+  i=$(($i+1))
+  rowp=$((76*$i/$no))
+  spacep=$((76-$rowp))
+  clear
+#  #echo "_______________________________________|______________________________________"
+#  echo "                                /======|======\\"
+#  sed -n "${i}p" $elej.rbyw
+#  echo "                                \\======|======/"
+#  #echo "---------------------------------------|--------------------------------------"
+  echo -e "\e[90m                                /======\e[94m|\e[90m======\\ \e[0m"
+  str=$(sed -n "${i}p" $elej.rbyw)
+  echo -e "${str:0:39}"$'\e[1m\e[94m'"${str:39:1}"$'\e[0m'"${str:40}"
+  echo -e "\e[90m                                \\======\e[94m|\e[90m======/ \e[0m"
+
+  printf '\e[90m['
+  if [[ $rowp>0 ]]; then
+   printf '%0.s\e[90m_\e[0m' $(seq 1 $rowp)
+  fi
+  if [[ $spacep>0 ]]; then
+   printf '%0.s ' $(seq 1 $spacep)
+  fi
+  printf '\e[90m]\e[0m\n'
+
+  if [[ $wpm -eq 50 ]]; then
+   echo "50 wpm, $pct%."
+   echo "Press ./6 to accelerate, ,/4 to deccelerate, t/8 to turbo speed,"
+   echo "[space]/0 to pause, q to quit."
+  fi
+  if [[ $dousp -eq 1 ]]; then
+   delay=`echo 60/$wpm/$turboval|bc -l`
+  else
+   delay=`echo 60/$wpm|bc -l`
+  fi
+  IFS= read -s -t $delay -n 1 key
+ 
+  if [[ "$key" == " " ]] || [[ "$key" == "0" ]]; then
+   dousp=0
+   pct=$((100*$i/$no))
+   while true; do
+    echo "Paused, $pct%. Speed set back to 50 wpm."
+    echo "Press b/1 (B/7) to roll back, f/3 (F/9) to roll forward,"
+    echo "q to quit, or any other key to continue."
+    wpm=50
+    read -s -n 1 key
+    if [[ "$key" == "b" ]] || [[ "$key" == "1" ]]; then
+     if [[ $i -gt 1 ]]; then
+      i=$(($i-1))
+      pct=$((100*$i/$no))
+      rowp=$((76*$i/$no))
+      spacep=$((76-$rowp))
+     fi
+     clear
+     echo -e "\e[90m                                /======\e[94m|\e[90m======\\ \e[0m"
+     str=$(sed -n "${i}p" $elej.rbyw)
+     echo -e "${str:0:39}"$'\e[1m\e[94m'"${str:39:1}"$'\e[0m'"${str:40}"
+     echo -e "\e[90m                                \\======\e[94m|\e[90m======/ \e[0m"
+     printf '\e[90m['
+     if [[ $rowp>0 ]]; then
+      printf '%0.s\e[90m_\e[0m' $(seq 1 $rowp)
+     fi
+     if [[ $spacep>0 ]]; then
+      printf '%0.s ' $(seq 1 $spacep)
+     fi
+     printf '\e[90m]\e[0m\n'
+#     echo "                                /======|======\\"
+#     sed -n "${i}p" $elej.rbyw
+#     echo "                                \\======|======/"
+    elif [[ "$key" == "f" ]] || [[ "$key" == "3" ]]; then
+     if [[ $i -lt $no ]]; then
+      i=$(($i+1))
+      pct=$((100*$i/$no))
+      rowp=$((76*$i/$no))
+      spacep=$((76-$rowp))
+     fi
+     clear
+     echo -e "\e[90m                                /======\e[94m|\e[90m======\\ \e[0m"
+     str=$(sed -n "${i}p" $elej.rbyw)
+     echo -e "${str:0:39}"$'\e[1m\e[94m'"${str:39:1}"$'\e[0m'"${str:40}"
+     echo -e "\e[90m                                \\======\e[94m|\e[90m======/ \e[0m"
+     printf '\e[90m['
+     if [[ $rowp>0 ]]; then
+      printf '%0.s\e[90m_\e[0m' $(seq 1 $rowp)
+     fi
+     if [[ $spacep>0 ]]; then
+      printf '%0.s ' $(seq 1 $spacep)
+     fi
+     printf '\e[90m]\e[0m\n'
+#     echo "                                /======|======\\"
+#     sed -n "${i}p" $elej.rbyw
+#     echo "                                \\======|======/"
+    elif [[ "$key" == "B" ]] || [[ "$key" == "7" ]]; then
+     if [[ $i -gt 100 ]]; then
+      i=$(($i-100))
+      pct=$((100*$i/$no))
+      rowp=$((76*$i/$no))
+      spacep=$((76-$rowp))
+     fi
+     clear
+     echo -e "\e[90m                                /======\e[94m|\e[90m======\\ \e[0m"
+     str=$(sed -n "${i}p" $elej.rbyw)
+     echo -e "${str:0:39}"$'\e[1m\e[94m'"${str:39:1}"$'\e[0m'"${str:40}"
+     echo -e "\e[90m                                \\======\e[94m|\e[90m======/ \e[0m"
+     printf '\e[90m['
+     if [[ $rowp>0 ]]; then
+      printf '%0.s\e[90m_\e[0m' $(seq 1 $rowp)
+     fi
+     if [[ $spacep>0 ]]; then
+      printf '%0.s ' $(seq 1 $spacep)
+     fi
+     printf '\e[90m]\e[0m\n'
+#     echo "                                /======|======\\"
+#     sed -n "${i}p" $elej.rbyw
+#     echo "                                \\======|======/"
+    elif [[ "$key" == "F" ]] || [[ "$key" == "9" ]]; then
+     if [[ $i -lt $(($no-100)) ]]; then
+      i=$(($i+100))
+      pct=$((100*$i/$no))
+      rowp=$((76*$i/$no))
+      spacep=$((76-$rowp))
+     fi
+     clear
+     echo -e "\e[90m                                /======\e[94m|\e[90m======\\ \e[0m"
+     str=$(sed -n "${i}p" $elej.rbyw)
+     echo -e "${str:0:39}"$'\e[1m\e[94m'"${str:39:1}"$'\e[0m'"${str:40}"
+     echo -e "\e[90m                                \\======\e[94m|\e[90m======/ \e[0m"
+     printf '\e[90m['
+     if [[ $rowp>0 ]]; then
+      printf '%0.s\e[90m_\e[0m' $(seq 1 $rowp)
+     fi
+     if [[ $spacep>0 ]]; then
+      printf '%0.s ' $(seq 1 $spacep)
+     fi
+     printf '\e[90m]\e[0m\n'
+#     echo "                                /======|======\\"
+#     sed -n "${i}p" $elej.rbyw
+#     echo "                                \\======|======/"
+    else
+     if [[ $i -gt 1 ]]; then
+      i=$(($i-1))
+      pct=$((100*$i/$no))
+      rowp=$((76*$i/$no))
+      spacep=$((76-$rowp))
+     fi
+     break
+    fi
+   done
+  fi
+ 
+  if [[ "$key" == "t" || "$key" == "8" ]] && [[ ! $dousp -eq 1 ]]; then
+   dousp=1
+   echo "                                  Turbo speed"
+   sleep $delay
+  elif [[ "$key" != "" ]] && [[ "$key" != "," ]] && [[ "$key" != "." ]] && [[ "$key" != "4" ]] && [[ "$key" != "6" ]] && [[ $dousp -eq 1 ]]; then
+   dousp=0
+   echo "                                      $wpm"
+   sleep $delay
+  fi
+
+  if [[ "$key" == "q" ]]; then
+   exitcl
+  fi
+ 
+  if [[ "$key" == "." ]] || [[ "$key" == "6" ]]; then
+   wpm=$(($wpm+50))
+   if [[ $dousp -eq 1 ]]; then
+    echo "                                    $wpm x $turboval"
+   else
+    echo "                                      $wpm"
+   fi
+   sleep $delay
+  fi
+ 
+  if [[ "$key" == "," ]] || [[ "$key" == "4" ]]; then
+   if [[ $wpm -gt 50 ]]; then
+    wpm=$(($wpm-50))
+   fi
+   if [[ $dousp -eq 1 ]]; then
+    echo "                                    $wpm x $turboval"
+   else
+    echo "                                      $wpm"
+   fi
+   sleep $delay
+  fi
+ done
+done
+
+exitcl

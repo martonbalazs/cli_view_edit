@@ -1,0 +1,216 @@
+#!/bin/bash
+# 2014.04.15
+# Usage: v [any number of strings]
+# Printer can be specified in file ~/.prevlpr_printer.txt
+# converts pdf's to ps, shows them, prints them.
+# Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
+
+function exitcl {
+ cd -
+
+ l=1
+ while [ -n "$l" ]; do
+  sleep 1
+  l=`lsof +d /tmp/$k`
+ done
+
+ rm -f -R /tmp/$k
+ exit
+}
+
+if [ -f ~/.prevlpr_printer.txt ]; then
+ printer=`cat ~/.prevlpr_printer.txt`
+else
+ printer=""
+fi
+
+for j in "$@"
+do
+ for i in *$j*
+ do
+ 
+# Bash parameter expansion
+  veg=${i##*.}
+  elej=${i%.*}
+
+  if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]] || [[ "$veg" == "ps" ]] || [[ "$veg" == "PS" ]] || [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "htm" ]]; then
+   k=v3$elej`date +%N`
+   mkdir /tmp/$k
+   chmod 700 /tmp/$k/
+ 
+   cp "$i" /tmp/$k
+   cd /tmp/$k
+
+# Convert to ps
+   if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]]; then
+    command -v pdftops > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need pdftops but I can't find it."
+     exitcl
+    fi
+    pdftops "$i"
+   fi
+   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]]; then
+    command -v libreoffice > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need libreoffice but I can't find it."
+     exitcl
+    fi
+    command -v pdftops > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need pdftops but I can't find it."
+     exitcl
+    fi
+    libreoffice --headless --convert-to pdf "$i"
+    pdftops "$elej.pdf"
+   fi
+   if [[ "$veg" == "txt" ]]; then
+    command -v a2ps > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need a2ps but I can't find it."
+     exitcl
+    fi
+    a2ps -o "$elej.ps" "$i" 
+   fi
+   if [[ "$veg" == "PS" ]]; then
+    cp "$i" "$elej.ps"
+   fi
+   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]; then
+    command -v latex > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need LaTeX but I can't find it."
+     exitcl
+    fi
+    cd -
+    cp *.bib /tmp/$k
+    cp *.eps /tmp/$k
+    cp *.clo /tmp/$k
+    cp *.cls /tmp/$k
+    cp *.bst /tmp/$k
+    cp *.sty /tmp/$k
+    cd /tmp/$k
+    latex -interaction=nonstopmode "$i"
+    
+    cd -
+    if [[ -f "$elej".bbl ]]
+    then
+     cp "$elej".bbl /tmp/$k
+     cd /tmp/$k
+    else
+     cd /tmp/$k
+     bibtex "$elej".aux
+    fi
+    makeindex "$elej"
+    latex -interaction=nonstopmode "$i"
+    latex -interaction=nonstopmode "$i"
+    dvips "$elej".dvi
+   fi
+   if [[ "$veg" == "html" ]] || [[ "$veg" == "html" ]]; then
+    command -v html2ps > /dev/null 2>&1
+    if [ "$?" -ne "0" ]; then
+     echo "I need html2ps but I can't find it."
+     exitcl
+    fi
+    html2ps "$i" > "$elej.ps"
+   fi
+
+# Show result
+   gv "$elej.ps" &
+   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it, anything else to forget it.
+   " tetszik
+
+# If ok:
+   if [ "$tetszik" == "o" ]; then
+    if [ "$printer" == "" ]; then
+     lpr -o sides=two-sided-long-edge "$elej.ps"
+     echo "Sent $elej.ps to printer."
+    else
+     lpr -o sides=two-sided-long-edge -P"$printer" "$elej.ps"
+     echo "Sent $elej.ps to $printer."
+    fi
+
+   elif [ "$tetszik" == "s" ]; then
+    if [ "$printer" == "" ]; then
+     lpr -o sides=two-sided-short-edge "$elej.ps"
+#https://dvinfo.ifh.de/Printing_with_Cups#I.27m_using_psutils_.28pstops.2Cpsnup.2Cpsbook.29._Even_though_I.27m_using_the_option_.27.27sides.3Dtwo-sided-short-edge.27.27_the_output_was_not_arranged_in_the_correct_order._What_can_I_do.3F
+     #lp -o document-format=application/bindshort "$elej.ps"
+     echo "Sent $elej.ps to printer (short edge)."
+    else
+     lpr -o sides=two-sided-short-edge -P"$printer" "$elej.ps"
+     #lp -o document-format=application/bindshort -d"$printer" "$elej.ps"
+     echo "Sent $elej.ps to $printer (short edge)."
+    fi
+
+   elif [ "$tetszik" == "t" ]; then
+    if [ "$printer" == "" ]; then
+     psselect -e -r "$elej.ps" | lpr
+     echo "Sent the even pages of $elej.ps to printer."
+     echo "Turn sheets in their plane and refeed, press [enter] when ready."
+     read
+     psselect -o "$elej.ps" | lpr
+     echo "Sent the odd pages of $elej"_"$k.ps to printer."
+    else
+     psselect -e -r "$elej.ps" | lpr -P"$printer"
+     echo "Sent the even pages of $elej.ps to $printer."
+     echo "Turn sheets in their plane and refeed, press [enter] when ready."
+     read
+     psselect -o "$elej.ps" | lpr -P"$printer"
+     echo "Sent the odd pages of $elej"_"$k.ps to $printer."
+    fi
+
+# If psbind:
+   elif [ "$tetszik" == "p" ]; then
+    psbind "$elej.ps" > "$elej"_"$k.ps"
+    gv "$elej"_"$k.ps" &
+    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, anything else to forget it.
+    " tetszikp
+
+    if [ "$tetszikp" == "o" ]; then
+     if [ "$printer" == "" ]; then
+      lpr -o sides=two-sided-short-edge "$elej"_"$k.ps"
+      #lp -o document-format=application/bindshort "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to printer."
+     else
+      lpr -o sides=two-sided-short-edge -P"$printer" "$elej"_"$k.ps"
+      #lp -o document-format=application/bindshort -d"$printer" "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to $printer."
+     fi
+
+    elif [ "$tetszikp" == "s" ]; then
+     if [ "$printer" == "" ]; then
+      lpr -o sides=two-sided-long-edge "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to printer (long edge)."
+     else
+      lpr -o sides=two-sided-long-edge -P"$printer" "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to $printer (long edge)."
+     fi
+
+    elif [ "$tetszikp" == "t" ]; then
+     if [ "$printer" == "" ]; then
+      psselect -e -r "$elej"_"$k.ps" | lpr
+      echo "Sent the even pages of $elej"_"$k.ps to printer."
+      echo "Refeed sheets without turning, press [enter] when ready."
+      read
+      psselect -o "$elej"_"$k.ps" | lpr
+      echo "Sent the odd pages of $elej"_"$k.ps to printer."
+     else
+      psselect -e -r "$elej"_"$k.ps" | lpr -P"$printer"
+      echo "Sent the even pages of $elej"_"$k.ps to $printer."
+      echo "Refeed sheets without turning, press [enter] when ready."
+      read
+      psselect -o "$elej"_"$k.ps" | lpr -P"$printer"
+      echo "Sent the odd pages of $elej"_"$k.ps to $printer."
+     fi
+    else
+     echo "Ok, forget it."
+    fi
+
+# If not nice:
+   else
+    echo "Ok, forget it."
+   fi
+
+   exitcl
+  fi
+ done
+done

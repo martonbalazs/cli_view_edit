@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Use as: nonascii <file>
+#
+# http://stackoverflow.com/questions/13596531/how-to-search-for-non-ascii-characters-with-bash-tools
+
+nonascii() { LANG=C grep --color=always '[^ -~]\+'; }
+cat "$1"|nonascii

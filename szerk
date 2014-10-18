@@ -1,0 +1,277 @@
+#!/bin/bash
+# 2014.09.04
+# Usage: szerk [any number of strings]
+# opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
+# for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
+
+for j in "$@"
+do
+ for i in *$j*
+ do
+  firstfile=i
+  break
+ done
+ break
+done
+legelej=${i%.*}
+k=s3$legelej`date +%N`
+mkdir $HOME/tmp/$k
+chmod 700 $HOME/tmp/$k/
+
+viml=""
+ffl=""
+ool=""
+files=""
+
+for j in "$@"
+do
+
+ for i in *$j*
+ do
+ 
+  if [ ! -f "$i" ]
+  then
+   continue
+  fi
+
+  if [ ! -w "$i" ]
+  then
+   read -p "$i non-writable, [Enter]"
+   continue
+  fi
+
+ # Bash parameter expansion
+   veg=${i##*.}
+   elej=${i%.*}
+  
+ #echo "$veg"
+ #echo "$elej"
+  
+ #### doc, docx, rtf, ods, odt, xls, xlsx, xlsm, ppt, pptx, pps
+  
+  if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]]
+  then
+   cp "$i" $HOME/tmp/$k
+   cd $HOME/tmp/$k
+ 
+   ool="$i $ool"
+   files="$i $files"
+ 
+   cd -
+  fi 
+  
+ #### htm, html, wml
+  
+  if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
+  then
+   cp "$i" $HOME/tmp/$k
+   cd $HOME/tmp/$k
+ 
+   viml="$i $viml"
+   ffl="$i $ffl"
+   files="$i $files"
+ 
+   cd -
+  fi
+  
+ #### lev, txt, org, php, sql, csv, css
+  
+  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]]
+  then
+   cp "$i" $HOME/tmp/$k
+   cd $HOME/tmp/$k
+ 
+   viml="$i $viml"
+   files="$i $files"
+ 
+   cd -
+  fi
+  
+ #### tex, ltx
+  
+  if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
+  then
+   cp "$i" $HOME/tmp/$k
+   cp *.bib $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.bib $files"
+   fi
+   cp *.eps $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.eps $files"
+   fi
+   cp *.clo $HOME/tmp/$k
+   cp *.cls $HOME/tmp/$k
+   cp *.bst $HOME/tmp/$k
+   cp *.sty $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.sty $files"
+   fi
+   cd $HOME/tmp/$k
+
+# Make an empty frame
+   cat $i |
+   awk ' BEGIN{ 
+    bodycut=0
+   }
+   {
+    if ($0=="%szerkbodyend") bodycut=0;
+    if (bodycut!=1) print($0);
+    if ($0=="%szerkbodystart") {
+     bodycut=1
+     print("");
+     print("");
+    };
+   }' > 2del_"$i"
+
+   cmp -s ./2del_"$i" ./"$i"
+   if [ "$?" -ne "0" ]; then
+    wehavetest=1
+   else
+    wehavetest=0
+   fi
+
+   latex "$i"
+   if [ "$wehavetest" -eq "1" ]
+   then
+    echo "%!!! This is a temporary file only and will NOT be saved by szerk." | cat - 2del_"$i" > 2deltmp_"$i" && mv 2deltmp_"$i" 2del_"$i" 
+    latex 2del_"$i"
+   fi
+   files="$i $files"
+   
+   cd -
+   if [[ -f "$elej".bbl ]]
+   then
+    cp "$elej".bbl $HOME/tmp/$k
+    files="$elej.bbl $files"
+    cd $HOME/tmp/$k
+    if [ "$wehavetest" -eq "1" ]
+    then
+     cp "$elej".bbl 2del_"$elej".bbl
+    fi
+   else
+    cd $HOME/tmp/$k
+    bibtex "$elej".aux
+    if [ "$wehavetest" -eq "1" ]
+    then
+     bibtex 2del_"$elej".aux
+    fi
+   fi
+
+   makeindex "$elej"
+   if [ "$wehavetest" -eq "1" ]
+   then
+    makeindex 2del_"$elej"
+   fi
+  
+   latex "$i"
+   if [ "$wehavetest" -eq "1" ]
+   then
+    latex 2del_"$i"
+   fi
+  
+   latex "$i"
+   if [ "$wehavetest" -eq "1" ]
+   then
+    latex 2del_"$i"
+   fi
+   
+   dvipdf "$elej".dvi
+   if [ "$wehavetest" -eq "1" ]
+   then
+    dvipdf 2del_"$elej".dvi
+   fi
+  
+   cp "$elej".pdf "$elej"_nezd.pdf
+   if [ "$wehavetest" -eq "1" ]
+   then
+    cp 2del_"$elej".pdf 2del_"$elej"_nezd.pdf
+   fi
+  
+   evince >/dev/null 2>&1 "$elej"_nezd.pdf &
+   if [ "$wehavetest" -eq "1" ]
+   then
+    evince >/dev/null 2>&1 2del_"$elej"_nezd.pdf &
+   fi
+ 
+   viml="$i $viml"
+   if [ "$wehavetest" -eq "1" ]
+   then
+    viml="2del_$i $viml"
+   fi
+ 
+   cd -
+  fi
+  
+ #### zhk
+  
+  if [[ "$veg" == "zhk" ]]
+  then
+   cp "$elej.zhk" $HOME/tmp/$k
+   cp "$elej.kov" $HOME/tmp/$k
+   cp "$elej.knv" $HOME/tmp/$k
+   cd $HOME/tmp/$k
+ 
+   zh "$i"
+   
+   viml="$i $viml"
+   ffl="$elej.html $ffl"
+   files="$elej.zhk $files"
+   files="$elej.kov $files"
+   files="$elej.knv $files"
+ 
+   cd -
+  fi
+ done
+done
+
+# open everyone in vim, openoffice and firefox
+cd $HOME/tmp/$k
+if [ -n "$ool" ]
+then
+ libreoffice $ool &
+fi
+if [ -n "$ffl" ]
+then
+ firefox $ffl &
+fi
+if [ -n "$viml" ]
+then
+ vim -p $viml
+fi
+
+# wait till everything closed
+cd -
+l=1
+while [ -n "$l" ]; do
+ sleep 1
+ l=`lsof +d $HOME/tmp/$k`
+#  echo "$HOME/tmp/$k/$elej.$veg nyitva"
+done
+
+# Copying back
+baj=0
+for i in $files
+do
+ cmp -s $HOME/tmp/$k/$i ./$i
+ if [ "$?" -ne "0" ]; then
+  cp $HOME/tmp/$k/$i .
+  if [ "$?" -ne "0" ]
+  then
+   echo "!!! Problem with $HOME/tmp/$k/$i !!!"
+   baj=1
+  else
+   echo "$HOME/tmp/$k/$i --> $PWD"
+  fi
+ fi
+done
+
+if [ "$baj" -ne "1" ]
+then
+ rm -f -R $HOME/tmp/$k
+else
+ echo "!!! Problem with, $HOME/tmp/$k/ has not been deleted !!!"
+fi
