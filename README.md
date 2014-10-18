@@ -29,7 +29,7 @@ Spritz-like CLI reader too.
   rbyw [url]. Comfortably adjust speed while playing with "." or "6" and "," or
   "4"; fast forward with "t" or "8"; pause with [space] or "0", and then roll
   back and forward one word "b" or "1" and "f" or "3" or 100 words "B" or "7" and
-  "F" and "9". A bar shows you where you are in the file. "q" quits at any time.
+  "F" or "9". A bar shows you where you are in the file. "q" quits at any time.
   Credits go to Ferenc Wettl for making it nicer-looking.
 
 - szerk [file(s)] or [part(s) of filename(s)] opens any matching files from the
