@@ -1,8 +1,7 @@
 #!/bin/bash
 # 2014.04.15
-# Usage: v [any number of strings]
 # Printer can be specified in file ~/.prevlpr_printer.txt
-# converts pdf's to ps, shows them, prints them.
+# converts things to ps, shows them, prints them.
 # Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
 
 function exitcl {
