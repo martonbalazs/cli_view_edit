@@ -45,7 +45,8 @@ Spritz-like CLI reader too.
   nicer to edit complicated documents.
 
 - v [file(s)] or [part(s) of filename(s)] opens any matching files from the
-  current directory for viewing. Latex files are compiled and pdf is shown.
+  current directory for viewing. Latex files are compiled in /tmp/ (no mess is
+  left behind) and pdf is shown.
 
 - vcl is very similar, it also copies full filename into xclipboard, useful if
   we want to make a notice of the file.
