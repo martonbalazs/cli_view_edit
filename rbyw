@@ -142,13 +142,14 @@ for i in *; do
  fi
  cat "$elej".txt |
  
- # Put words in separate lines (various [space]s, tabs,... junk is coming with copypaste from pdf's. :-( )
+ # Put words in separate lines (various [space]s, tabs,... junk is coming with copypaste from pdf's. :-( , escape character \)
  
  sed 's/--*/- /g' |
  sed 's/ / /g' |
  sed 's/ / /g' |
  sed 's/	/ /g' |
  sed 's/  */\n/g' |
+ sed 's/\\/_/g' |
  
  # Center words. Couldn't get this straight with unicode characters and awk. :-( Works fine with gawk.
  awk '
