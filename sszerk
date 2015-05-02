@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2014.05.02
+# 2015.04.25
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 
@@ -51,6 +51,7 @@ do
   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]]
   then
    cp "$i" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
    cd $HOME/tmp/$k
  
    ool="$i $ool"
@@ -64,6 +65,7 @@ do
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
    cp "$i" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
    cd $HOME/tmp/$k
  
    viml="$i $viml"
@@ -78,6 +80,7 @@ do
   if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]]
   then
    cp "$i" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
    cd $HOME/tmp/$k
  
    viml="$i $viml"
@@ -91,6 +94,7 @@ do
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
    cp "$i" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
    cp *.bib $HOME/tmp/$k
    if [ "$?" == 0 ]
    then
@@ -149,6 +153,7 @@ do
    cp "$elej.zhk" $HOME/tmp/$k
    cp "$elej.kov" $HOME/tmp/$k
    cp "$elej.knv" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
    cd $HOME/tmp/$k
  
    zh "$i"

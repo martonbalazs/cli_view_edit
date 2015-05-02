@@ -51,6 +51,7 @@ if [[ $fts =~ $veg ]] && [[ -f "$1" ]]; then
  mkdir /tmp/$k
  chmod 700 /tmp/$k/
  cp "$1" /tmp/$k
+ catthatfile "/tmp/$k" "$1" &
  cd /tmp/$k
 
 # If we have an url (http:******) then wget with / or without /, then copy to /tmp.

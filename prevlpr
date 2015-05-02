@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2014.04.15
+# 2015.05.25
 # Printer can be specified in file ~/.prevlpr_printer.txt
 # converts things to ps, shows them, prints them.
 # Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
@@ -38,6 +38,7 @@ do
    chmod 700 /tmp/$k/
  
    cp "$i" /tmp/$k
+   catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
 
 # Convert to ps

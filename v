@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2013.10.14
+# 2015.04.25
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 
@@ -33,6 +33,7 @@ do
    chmod 700 /tmp/$k/
  
    cp "$i" /tmp/$k
+   catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
    evince "$i"
    
@@ -85,6 +86,7 @@ do
    cp *.cls /tmp/$k
    cp *.bst /tmp/$k
    cp *.sty /tmp/$k
+   catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
    latex -interaction=nonstopmode "$i"
    
@@ -129,6 +131,7 @@ do
    cp "$i" /tmp/$k
    cp "$elej.kov" /tmp/$k
    cp "$elej.knv" /tmp/$k
+   catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
  
    zh "$elej"
