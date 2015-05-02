@@ -54,7 +54,7 @@ Spritz-like CLI reader too.
 - catthatfile is just a small utility that is used by some of the above. It
   pings the original file every 30 seconds until the copy is being looked at.
   This makes sure that the filesystem under the original doesn't umount due to
-  timeout (encfs can do that foor example).
+  timeout (encfs can do that for example).
 
 I'm no programmer, so please don't blame me on the quality of the code. :-)
 Licensed under GNU GPLv3.
