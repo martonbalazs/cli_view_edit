@@ -116,7 +116,7 @@ do
 
 # Show result
    gv "$elej.ps" &
-   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it, anything else to forget it.
+   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it; e: prepare pdf for email printing; anything else to forget it.
    " tetszik
 
 # If ok:
@@ -158,11 +158,16 @@ do
      echo "Sent the odd pages of $elej"_"$k.ps to $printer."
     fi
 
+   elif [ "$tetszik" == "e" ]; then
+    ps2pdf "$elej.ps" "$elej"_emailp.pdf
+    cpcl "$elej"_emailp.pdf
+    evince "$elej"_emailp.pdf
+
 # If psbind:
    elif [ "$tetszik" == "p" ]; then
     psbind "$elej.ps" > "$elej"_"$k.ps"
     gv "$elej"_"$k.ps" &
-    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, anything else to forget it.
+    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, e: prepare pdf for email printing; anything else to forget it.
     " tetszikp
 
     if [ "$tetszikp" == "o" ]; then
@@ -201,6 +206,12 @@ do
       psselect -o "$elej"_"$k.ps" | lpr -P"$printer"
       echo "Sent the odd pages of $elej"_"$k.ps to $printer."
      fi
+
+    elif [ "$tetszikp" == "e" ]; then
+     ps2pdf "$elej"_"$k.ps" "$elej"_emailp.pdf
+     cpcl "$elej"_emailp.pdf
+     evince "$elej"_emailp.pdf
+
     else
      echo "Ok, forget it."
     fi

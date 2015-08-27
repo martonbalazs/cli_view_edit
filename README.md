@@ -14,10 +14,10 @@ Spritz-like CLI reader too.
   documents, latex, html) into ps, shows it, and asks for printing options. Can
   do, in principle, one- or two-sided printing on suitable printers, or can
   cooperate with manually (re-)feeding a printer so that the result is two-sided
-  (credits partially go to Imre Péter Tóth). If psbind
-  (http://freecode.com/projects/psbind) is installed then it applies psbind with
-  a push of a button. The printer can be specified in the file
-  ~/.prevlpr_printer.txt .
+  (credits partially go to Imre Péter Tóth). Also prepared for producing a pdf
+  for email-printing. If psbind (http://freecode.com/projects/psbind) is
+  installed then it applies psbind with a push of a button. The printer can be
+  specified in the file ~/.prevlpr_printer.txt .
 
 - rbyw (Read By Word) is yet another Spritz-like reader
   (http://www.spritzinc.com/). With rbyw [file] it reads text files, and also
@@ -54,7 +54,7 @@ Spritz-like CLI reader too.
 - catthatfile is just a small utility that is used by some of the above. It
   pings the original file every 30 seconds until the copy is being looked at.
   This makes sure that the filesystem under the original doesn't umount due to
-  timeout (encfs can do that for example).
+  timeout (encfs can do that foor example).
 
 I'm no programmer, so please don't blame me on the quality of the code. :-)
 Licensed under GNU GPLv3.

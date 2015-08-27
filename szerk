@@ -76,9 +76,9 @@ do
    cd -
   fi
   
- #### lev, txt, org, php, sql, csv, css
+ #### lev, txt, org, php, sql, csv, css, bib
   
-  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]]
+  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "bib" ]]
   then
    cp "$i" $HOME/tmp/$k
    catthatfile "$HOME/tmp/$k" "$i" &
