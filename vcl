@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.04.25
+# 2015.09.24
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
@@ -24,7 +24,7 @@ do
 
  filen=`basename "$i"`
  echo "Copied to clipboard: `pwd`/$filen"
- echo "`pwd`/$filen"|xclip
+ echo -n "`pwd`/$filen"|xclip
  
   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]]
   then
@@ -99,28 +99,135 @@ do
    cp *.sty /tmp/$k
    catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
+
+# Do we have solutions?
+   solutions=0
+   if grep -q "setbool{solu}{true}" "$i"
+   then
+    solutions=1
+   fi
+
+   if grep -q "setbool{solu}{false}" "$i"
+   then
+    solutions=1
+   fi
+
+   if [ "$solutions" -eq "1" ]
+   then
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{true}");
+       soldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > sol_"$i"
+
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{false}");
+       soldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > nosol_"$i"
+   fi
+
+   if [ "$solutions" -eq "1" ]
+   then
+    mv nosol_"$i" "$i"
+   fi
+
    latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -eq "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
    
    cd -
    if [[ -f "$elej".bbl ]]
    then
     cp "$elej".bbl /tmp/$k
     cd /tmp/$k
+    if [ "$solutions" -eq "1" ]
+    then
+     cp "$elej".bbl sol_"$elej".bbl
+    fi
    else
     cd /tmp/$k
     bibtex "$elej".aux
+    if [ "$solutions" -eq "1" ]
+    then
+     bibtex sol_"$elej".aux
+    fi
    fi
  
    makeindex "$elej"
+   if [ "$solutions" -eq "1" ]
+   then
+    makeindex sol_"$elej"
+   fi
 
    latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -eq "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
  
    latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -eq "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
    
    dvipdf "$elej".dvi
+   if [ "$solutions" -eq "1" ]
+   then
+    dvipdf sol_"$elej".dvi
+   fi
  
-   evince "$elej".pdf
-   
+   if [ "$solutions" -eq "1" ]
+   then
+    read -p "Change xclip to [n] no solution, [s] to solution, or keep source?
+    " wxcl
+    if [ "$wxcl" == "n" ]
+    then
+     filen=`basename "$elej".pdf`
+     echo "Copied to clipboard: `pwd`/$filen"
+     echo -n "`pwd`/$filen"|xclip
+    elif [ "$wxcl" == "s" ]
+    then
+     filen=`basename sol_"$elej".pdf`
+     echo "Copied to clipboard: `pwd`/$filen"
+     echo -n "`pwd`/$filen"|xclip
+    fi
+    evince "$elej".pdf sol_"$elej".pdf
+   else
+    read -p "Change xclip to pdf? y
+    " wxcl
+    if [ "$wxcl" == "y" ]
+    then
+     filen=`basename "$elej".pdf`
+     echo "Copied to clipboard: `pwd`/$filen"
+     echo -n "`pwd`/$filen"|xclip
+    fi
+    evince "$elej".pdf
+   fi
+
    cd -
  
    l=1

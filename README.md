@@ -17,7 +17,10 @@ Spritz-like CLI reader too.
   (credits partially go to Imre Péter Tóth). Also prepared for producing a pdf
   for email-printing. If psbind (http://freecode.com/projects/psbind) is
   installed then it applies psbind with a push of a button. The printer can be
-  specified in the file ~/.prevlpr_printer.txt .
+  specified in the file ~/.prevlpr_printer.txt . It can handle a particular
+  boolean LaTeX switch of the type "setbool{solu}{true}" or
+  "setbool{solu}{false}" which I use for solutions on or off in problem sheets or
+  exams.
 
 - rbyw (Read By Word) is yet another Spritz-like reader
   (http://www.spritzinc.com/). With rbyw [file] it reads text files, and also
@@ -46,7 +49,9 @@ Spritz-like CLI reader too.
 
 - v [file(s)] or [part(s) of filename(s)] opens any matching files from the
   current directory for viewing. Latex files are compiled in /tmp/ (no mess is
-  left behind) and pdf is shown.
+  left behind) and pdf is shown. It can handle a particular boolean LaTeX switch
+  of the type "setbool{solu}{true}" or "setbool{solu}{false}" which I use for
+  solutions on or off in problem sheets or exams.
 
 - vcl is very similar, it also copies full filename into xclipboard, useful if
   we want to make a notice of the file.

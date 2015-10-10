@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.05.25
+# 2015.09.24
 # Printer can be specified in file ~/.prevlpr_printer.txt
 # converts things to ps, shows them, prints them.
 # Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
@@ -89,6 +89,68 @@ do
     cp *.bst /tmp/$k
     cp *.sty /tmp/$k
     cd /tmp/$k
+
+# Do we have solutions?
+    solutions=0
+    if grep -q "setbool{solu}{true}" "$i"
+    then
+     solutions=1
+    fi
+ 
+    if grep -q "setbool{solu}{false}" "$i"
+    then
+     solutions=1
+    fi
+ 
+    if [ "$solutions" -eq "1" ]
+    then
+     read -p "This file has solutions [s] or no solutions [n] versions. Hit s or n, or else keep the original.
+     " solnosol
+
+     if [ "$solnosol" == "s" ]
+     then
+      cat $i |
+      awk ' BEGIN{ 
+       soldone=0
+      }
+      {
+       if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+        if (soldone==0) {
+         print("\\setbool{solu}{true}");
+         soldone=1
+        };
+       }
+       else {
+        print($0)
+       };
+      }' > sol_"$i"
+
+      mv sol_"$i" "$i"
+     fi
+
+     if [ "$solnosol" == "n" ]
+     then
+      cat $i |
+      awk ' BEGIN{ 
+       soldone=0
+      }
+      {
+       if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+        if (soldone==0) {
+         print("\\setbool{solu}{false}");
+         soldone=1
+        };
+       }
+       else {
+        print($0)
+       };
+      }' > nosol_"$i"
+
+      mv nosol_"$i" "$i"
+     fi
+
+    fi
+
     latex -interaction=nonstopmode "$i"
     
     cd -
@@ -116,7 +178,7 @@ do
 
 # Show result
    gv "$elej.ps" &
-   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it; e: prepare pdf for email printing; anything else to forget it.
+   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it; e: prepare pdf for email printing; f: same w/ even pages upside-down; anything else to forget it.
    " tetszik
 
 # If ok:
@@ -159,15 +221,22 @@ do
     fi
 
    elif [ "$tetszik" == "e" ]; then
-    ps2pdf "$elej.ps" "$elej"_emailp.pdf
-    cpcl "$elej"_emailp.pdf
-    evince "$elej"_emailp.pdf
+    ps2pdf "$elej.ps" "$elej"_email.pdf
+    cpcl "$elej"_email.pdf
+    evince "$elej"_email.pdf
+
+   elif [ "$tetszik" == "f" ]; then
+    ps2pdf "$elej.ps" "$elej"_torot.pdf
+    pdftk A="$elej"_torot.pdf shuffle Aodd AevenS output "$elej"_email.pdf
+    cpcl "$elej"_email.pdf
+    evince "$elej"_email.pdf
+
 
 # If psbind:
    elif [ "$tetszik" == "p" ]; then
     psbind "$elej.ps" > "$elej"_"$k.ps"
     gv "$elej"_"$k.ps" &
-    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, e: prepare pdf for email printing; anything else to forget it.
+    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, e: prepare pdf for email printing; f: same w/ even pages upside-down; anything else to forget it.
     " tetszikp
 
     if [ "$tetszikp" == "o" ]; then
@@ -208,9 +277,15 @@ do
      fi
 
     elif [ "$tetszikp" == "e" ]; then
-     ps2pdf "$elej"_"$k.ps" "$elej"_emailp.pdf
-     cpcl "$elej"_emailp.pdf
-     evince "$elej"_emailp.pdf
+     ps2pdf "$elej"_"$k.ps" "$elej"_email.pdf
+     cpcl "$elej"_email.pdf
+     evince "$elej"_email.pdf
+
+    elif [ "$tetszikp" == "f" ]; then
+     ps2pdf "$elej"_"$k.ps" "$elej"_torot.pdf
+     pdftk A="$elej"_torot.pdf shuffle Aodd AevenS output "$elej"_email.pdf
+     cpcl "$elej"_email.pdf
+     evince "$elej"_email.pdf
 
     else
      echo "Ok, forget it."
