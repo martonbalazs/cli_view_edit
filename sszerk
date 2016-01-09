@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.04.25
+# 2015.12.30
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 
@@ -100,10 +100,30 @@ do
    then
     files="*.bib $files"
    fi
+   cp *.png $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.png $files"
+   fi
+   cp *.pdf $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.pdf $files"
+   fi
    cp *.eps $HOME/tmp/$k
    if [ "$?" == 0 ]
    then
     files="*.eps $files"
+   fi
+   cp *.epsi $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.epsi $files"
+   fi
+   cp *.ps $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.ps $files"
    fi
    cp *.clo $HOME/tmp/$k
    cp *.cls $HOME/tmp/$k

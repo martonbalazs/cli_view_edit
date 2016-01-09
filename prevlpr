@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.09.24
+# 2015.12.30
 # Printer can be specified in file ~/.prevlpr_printer.txt
 # converts things to ps, shows them, prints them.
 # Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
@@ -83,7 +83,11 @@ do
     fi
     cd -
     cp *.bib /tmp/$k
+    cp *.png /tmp/$k
+    cp *.pdf /tmp/$k
     cp *.eps /tmp/$k
+    cp *.epsi /tmp/$k
+    cp *.ps /tmp/$k
     cp *.clo /tmp/$k
     cp *.cls /tmp/$k
     cp *.bst /tmp/$k

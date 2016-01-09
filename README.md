@@ -20,7 +20,7 @@ Spritz-like CLI reader too.
   specified in the file ~/.prevlpr_printer.txt . It can handle a particular
   boolean LaTeX switch of the type "setbool{solu}{true}" or
   "setbool{solu}{false}" which I use for solutions on or off in problem sheets or
-  exams.
+  exams (notice this won't work with dos-type linebreaks).
 
 - rbyw (Read By Word) is yet another Spritz-like reader
   (http://www.spritzinc.com/). With rbyw [file] it reads text files, and also
@@ -51,7 +51,8 @@ Spritz-like CLI reader too.
   current directory for viewing. Latex files are compiled in /tmp/ (no mess is
   left behind) and pdf is shown. It can handle a particular boolean LaTeX switch
   of the type "setbool{solu}{true}" or "setbool{solu}{false}" which I use for
-  solutions on or off in problem sheets or exams.
+  solutions on or off in problem sheets or exams (notice this won't work with
+  dos-type linebreaks).
 
 - vcl is very similar, it also copies full filename into xclipboard, useful if
   we want to make a notice of the file.

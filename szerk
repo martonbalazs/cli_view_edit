@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.04.25
+# 2015.12.30
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
@@ -101,10 +101,30 @@ do
    then
     files="*.bib $files"
    fi
+   cp *.pdf $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.pdf $files"
+   fi
+   cp *.png $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.png $files"
+   fi
    cp *.eps $HOME/tmp/$k
    if [ "$?" == 0 ]
    then
     files="*.eps $files"
+   fi
+   cp *.epsi $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.epsi $files"
+   fi
+   cp *.ps $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.ps $files"
    fi
    cp *.clo $HOME/tmp/$k
    cp *.cls $HOME/tmp/$k
@@ -131,7 +151,13 @@ do
     };
    }' > 2del_"$i"
 
-   cmp -s ./2del_"$i" ./"$i"
+# Make a reference frame. This is needed as awk sometimes screws up spec characters so we compare to a reference awking.
+   cat $i |
+   awk ' {
+    print($0)
+   }' > 2delref_"$i"
+
+   cmp -s ./2del_"$i" ./2delref_"$i"
    if [ "$?" -ne "0" ]; then
     wehavetest=1
    else

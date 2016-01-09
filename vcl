@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.09.24
+# 2015.12.30
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
@@ -92,7 +92,11 @@ do
  
    cp "$i" /tmp/$k
    cp *.bib /tmp/$k
+   cp *.pdf /tmp/$k
+   cp *.png /tmp/$k
    cp *.eps /tmp/$k
+   cp *.epsi /tmp/$k
+   cp *.ps /tmp/$k
    cp *.clo /tmp/$k
    cp *.cls /tmp/$k
    cp *.bst /tmp/$k
