@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.12.30
+# 2016-05-01
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
@@ -38,6 +38,14 @@ do
   then
    read -p "$i non-writable, [Enter]"
    continue
+  fi
+
+  if [ -f ".szerklock_$i" ]
+  then
+   echo Found ".szerklock_$i, skipping $i"
+   continue
+  else
+   touch ".szerklock_$i"
   fi
 
  # Bash parameter expansion
@@ -298,6 +306,7 @@ do
    echo "$HOME/tmp/$k/$i --> $PWD"
   fi
  fi
+ rm ./".szerklock_$i"
 done
 
 if [ "$baj" -ne "1" ]
