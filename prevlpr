@@ -169,6 +169,7 @@ do
     makeindex "$elej"
     latex -interaction=nonstopmode "$i"
     latex -interaction=nonstopmode "$i"
+    latex -interaction=nonstopmode "$i"
     dvips "$elej".dvi
    fi
    if [[ "$veg" == "html" ]] || [[ "$veg" == "html" ]]; then

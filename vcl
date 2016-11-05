@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.12.30
+# 2016-03-05
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
@@ -191,6 +191,12 @@ do
    then
     latex -interaction=nonstopmode "sol_$i"
    fi
+
+   latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -eq "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
  
    latex -interaction=nonstopmode "$i"
    if [ "$solutions" -eq "1" ]
@@ -271,6 +277,13 @@ do
    done
  
    rm -f -R /tmp/$k
+  fi
+
+  if [[ "$veg" == "MP4" ]]
+  then
+   parole "$i"
+   ls -All -h "$i"
+   read -n1 -s
   fi
  
  done

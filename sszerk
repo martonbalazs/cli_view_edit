@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2016-05-01
+# 2016-05-10
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 
@@ -159,7 +159,7 @@ do
    makeindex "$elej"
   
    latex "$i"
-  
+   latex "$i"
    latex "$i"
    
    dvipdf "$elej".dvi
@@ -236,7 +236,10 @@ do
    echo "$HOME/tmp/$k/$i --> $PWD"
   fi
  fi
- rm ./".szerklock_$i"
+ if [ -f ./".szerklock_$i" ]
+ then
+  rm ./".szerklock_$i"
+ fi
 done
 
 if [ "$baj" -ne "1" ]

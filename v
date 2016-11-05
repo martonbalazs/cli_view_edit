@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2015.12.30
+# 2016-09-28
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 
@@ -55,6 +55,7 @@ do
  
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
+   sleep 1
    firefox "$i" &
   fi
  
@@ -186,6 +187,12 @@ do
    then
     latex -interaction=nonstopmode "sol_$i"
    fi
+ 
+   latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -eq "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
    
    dvipdf "$elej".dvi
    if [ "$solutions" -eq "1" ]
@@ -239,6 +246,13 @@ do
    done
  
    rm -f -R /tmp/$k
+  fi
+
+  if [[ "$veg" == "MP4" ]]
+  then
+   parole "$i"
+   ls -All -h "$i"
+   read -n1 -s
   fi
  
  done
