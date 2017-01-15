@@ -42,7 +42,7 @@ do
    l=1
    while [ -n "$l" ]; do
     sleep 1
-    l=`lsof +d /tmp/$k`
+    l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
    rm -f -R /tmp/$k
@@ -212,7 +212,7 @@ do
    l=1
    while [ -n "$l" ]; do
     sleep 1
-    l=`lsof +d /tmp/$k`
+    l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
    rm -f -R /tmp/$k
@@ -242,7 +242,7 @@ do
    l=1
    while [ -n "$l" ]; do
     sleep 1
-    l=`lsof +d /tmp/$k`
+    l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
    rm -f -R /tmp/$k

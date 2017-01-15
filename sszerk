@@ -217,7 +217,7 @@ cd -
 l=1
 while [ -n "$l" ]; do
  sleep 1
- l=`lsof +d $HOME/tmp/$k`
+ l=`lsof 2>/dev/null +d $HOME/tmp/$k`
 #  echo "$HOME/tmp/$k/$elej.$veg nyitva"
 done
 
