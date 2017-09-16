@@ -183,7 +183,7 @@ do
 
 # Show result
    gv "$elej.ps" &
-   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it; e: prepare pdf for email printing; f: same w/ even pages upside-down; anything else to forget it.
+   read -p "How do you like the ps? o: ok, print it (duplex printer); s: short edge print it (duplex printer); t: two sided print on simple printer; p: psbind it; e: prepare pdf for email printing; f: same w/ even pages upside-down; n: no options to lpr; anything else to forget it.
    " tetszik
 
 # If ok:
@@ -193,6 +193,15 @@ do
      echo "Sent $elej.ps to printer."
     else
      lpr -o sides=two-sided-long-edge -P"$printer" "$elej.ps"
+     echo "Sent $elej.ps to $printer."
+    fi
+
+   elif [ "$tetszik" == "n" ]; then
+    if [ "$printer" == "" ]; then
+     lpr "$elej.ps"
+     echo "Sent $elej.ps to printer."
+    else
+     lpr -P"$printer" "$elej.ps"
      echo "Sent $elej.ps to $printer."
     fi
 
@@ -232,7 +241,7 @@ do
 
    elif [ "$tetszik" == "f" ]; then
     ps2pdf "$elej.ps" "$elej"_torot.pdf
-    pdftk A="$elej"_torot.pdf shuffle Aodd AevenS output "$elej"_email.pdf
+    pdftk A="$elej"_torot.pdf shuffle Aodd Aevensouth output "$elej"_email.pdf
     cpcl "$elej"_email.pdf
     evince "$elej"_email.pdf
 
@@ -241,7 +250,7 @@ do
    elif [ "$tetszik" == "p" ]; then
     psbind "$elej.ps" > "$elej"_"$k.ps"
     gv "$elej"_"$k.ps" &
-    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, e: prepare pdf for email printing; f: same w/ even pages upside-down; anything else to forget it.
+    read -p "How do you like the psbinded ps? o: ok, print it; s: long edge print it; t: two sided print on simple printer, e: prepare pdf for email printing; f: same w/ even pages upside-down; n: no options to lpr; anything else to forget it.
     " tetszikp
 
     if [ "$tetszikp" == "o" ]; then
@@ -252,6 +261,15 @@ do
      else
       lpr -o sides=two-sided-short-edge -P"$printer" "$elej"_"$k.ps"
       #lp -o document-format=application/bindshort -d"$printer" "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to $printer."
+     fi
+
+    elif [ "$tetszikp" == "n" ]; then
+     if [ "$printer" == "" ]; then
+      lpr "$elej"_"$k.ps"
+      echo "Sent $elej"_"$k.ps to printer."
+     else
+      lpr -P"$printer" "$elej"_"$k.ps"
       echo "Sent $elej"_"$k.ps to $printer."
      fi
 
@@ -288,7 +306,7 @@ do
 
     elif [ "$tetszikp" == "f" ]; then
      ps2pdf "$elej"_"$k.ps" "$elej"_torot.pdf
-     pdftk A="$elej"_torot.pdf shuffle Aodd AevenS output "$elej"_email.pdf
+     pdftk A="$elej"_torot.pdf shuffle Aodd Aevensouth output "$elej"_email.pdf
      cpcl "$elej"_email.pdf
      evince "$elej"_email.pdf
 

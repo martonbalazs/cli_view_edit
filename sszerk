@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2016-05-10
+# 2017-08-08
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 
@@ -219,6 +219,15 @@ while [ -n "$l" ]; do
  sleep 1
  l=`lsof 2>/dev/null +d $HOME/tmp/$k`
 #  echo "$HOME/tmp/$k/$elej.$veg nyitva"
+done
+
+# Check changes for text edits
+for i in $viml
+do
+ cmp -s $HOME/tmp/$k/$i ./$i
+ if [ "$?" -ne "0" ]; then
+  vimdiff -R -M ./$i $HOME/tmp/$k/$i
+ fi
 done
 
 # Copying back
