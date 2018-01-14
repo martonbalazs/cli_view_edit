@@ -1,0 +1,48 @@
+#!/bin/bash
+# 2018-01-13
+# Server for lo (Server for Lots of file Opener)
+# Creates and uses ~/.slo to work in.
+# Launch in your startup sequence. Needs "silent_cpucsekk" from my cli_util repo (or you could just replace that line by "sleep 1").
+
+# It's a good idea to print the size of the queue in your status line:
+# lolength=$(cat $HOME/.slo/2p.txt | wc -l)
+# echo "lo: $lolength"
+
+# Create ~/.slo/, ~/.slo/2p/, ~/.slo/2p.txt if doesn't exist
+
+if [ ! -d $HOME/.slo/ ]
+then
+ mkdir $HOME/.slo/
+fi
+
+if [ ! -d $HOME/.slo/2p/ ]
+then
+ mkdir $HOME/.slo/2p/
+fi
+
+if [ ! -f $HOME/.slo/2p.txt ]
+then
+ touch $HOME/.slo/2p.txt
+fi
+
+# Main loop: check what needs to be opened and open with browser or svlo.
+while true
+do
+
+# This is from my cli_util repo:
+ silent_cpucsekk
+
+ if [ -s $HOME/.slo/2p.txt ]
+ then
+  line=$(sed -n 1p $HOME/.slo/2p.txt) 
+  if [[ "$line" == "http://"* ]] || [[ "$line" == "https://"* ]]
+  then
+# mybr is my browser script, can replace this with e.g., "firefox" or "chromium-browser".
+   mybr "$line" &
+  else
+   svlo "$line" &
+  fi
+  sed -i 1d $HOME/.slo/2p.txt
+ fi
+
+done

@@ -1,0 +1,19 @@
+#!/bin/bash
+# 2018-01-13
+# File opener for the slo queue, called by slo. Needs "v", and "silent_cpucsekk" from my cli_util repo (or you could just replace that line by "sleep 1").
+
+cd $HOME/.slo/2p/
+veg=${1##*.}
+# echo "$veg"
+
+# Vim needs a new terminal
+if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$1" != *.* ]]
+then
+ gnome-terminal -e "bash -c 'vim \"+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1'"
+else
+ v "$1"
+fi
+
+# This is from my cli_util repo. Makes sure stuff is not deleted before used.
+silent_cpucsekk
+rm "$1"

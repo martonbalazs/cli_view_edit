@@ -1,8 +1,9 @@
 #!/bin/bash
-# 2016-03-05
+# 2018-01-14
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
 
 command -v xclip > /dev/null 2>&1
 if [ "$?" -ne "0" ]; then
@@ -66,7 +67,8 @@ do
  
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
-   firefox "$i" &
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
+   mybr "$i" &
   fi
  
   if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]]
@@ -264,7 +266,8 @@ do
  
    zh "$elej"
    
-   firefox "$elej".html &
+# notice: mybr is a script in your path for launching your favourite browser.
+   mybr "$elej".html &
    
    gnome-terminal --working-directory=/tmp/$k/
  

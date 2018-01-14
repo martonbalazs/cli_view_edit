@@ -1,0 +1,45 @@
+#!/bin/bash
+# 2018-01-13
+# Lots Of Webpages Opener (lowo)
+# Use as: lowo <filename> , where <filename> is without extension. Opens webpages in ~/.lowo/<filename>.txt .
+# Lines starting with # are ignored.
+# Url's to open must start the line with "http" in the file; any comments to display can come after a space.
+# Any other line is displayed and paused.
+
+if [[ $# == 1 ]] ; then
+
+ ffront=${1%.*}
+ file=$HOME/.lowo/$ffront.txt
+
+ if [ ! -f $file ] ; then
+  echo "Can't find the file $file."
+  exit
+ fi
+
+else
+  echo "Usage: lowo <filename>"
+  exit
+fi
+
+nol=$(cat $file | wc -l)
+
+for i in `seq 1 $nol`;
+do
+ line=$(sed -n "$i p" $file) 
+ url=${line%% *}
+ cmt=${line#* }
+ #echo "url: $url"
+ #echo "cmt: $cmt"
+ if [[ "$url" != "" ]] && [[ "$url" != "#"* ]] && [[ "$url" != "#" ]] ; then
+  if [[ "$url" == "http://"* ]] || [[ "$url" == "https://"* ]] ; then
+# Notice: this uses lo the slo queue feeder, but you could uncomment cpucsekk and use your favourite browser here.
+#   cpucsekk
+   lo "$url"
+   echo $cmt
+  else
+   echo "$line"
+   read -n1 -s
+  fi
+ fi
+done
+# cpucsekk

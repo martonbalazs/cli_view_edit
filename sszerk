@@ -1,7 +1,8 @@
 #!/bin/bash
-# 2017-08-08
+# 2018-01-14
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
 
 for j in "$@"
 do
@@ -197,7 +198,7 @@ do
  done
 done
 
-# open everyone in vim, openoffice and firefox
+# open everyone in vim, openoffice and firefox.
 cd $HOME/tmp/$k
 if [ -n "$ool" ]
 then
@@ -205,7 +206,8 @@ then
 fi
 if [ -n "$ffl" ]
 then
- firefox $ffl &
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
+ mybr $ffl &
 fi
 if [ -n "$viml" ]
 then

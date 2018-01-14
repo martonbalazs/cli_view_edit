@@ -1,7 +1,8 @@
 #!/bin/bash
-# 2016-09-28
+# 2018-01-14
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
 
 for j in "$@"
 do
@@ -56,7 +57,8 @@ do
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
    sleep 1
-   firefox "$i" &
+# notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
+   mybr "$i" &
   fi
  
   if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]]
@@ -233,7 +235,8 @@ do
  
    zh "$elej"
    
-   firefox "$elej".html &
+# notice: mybr is a script in your path for launching your favourite browser.
+   mybr "$elej".html &
    
    gnome-terminal --working-directory=/tmp/$k/
  

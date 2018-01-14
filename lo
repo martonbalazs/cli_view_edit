@@ -1,0 +1,29 @@
+#!/bin/bash
+# 2018-01-13
+# Feeder to the slo queue (Lots of files Opener)
+# Use as: lo <part of filename(s)>
+
+if ! pgrep -x "slo" > /dev/null
+then
+ echo "I need the slo server running but it's apparently not."
+fi
+
+if [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]
+then
+ echo "$1" >> $HOME/.slo/2p.txt
+else
+ for j in "$@"
+ do
+  for i in *$j*
+  do
+   # Alpine is crazy
+   clfn=${i//\*/}
+   #gnome-terminal -e "bash -c 'echo "$clfn"; exec bash'"
+
+   cp "$clfn" $HOME/.slo/2p/
+   pfn=${clfn##*/}
+   echo "$pfn" >> $HOME/.slo/2p.txt
+   #silent_cpucsekk
+  done
+ done
+fi
