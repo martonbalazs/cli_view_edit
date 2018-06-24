@@ -57,17 +57,17 @@ Spritz-like CLI reader too.
 - vcl is very similar, it also copies full filename into xclipboard, useful if
   we want to make a notice of the file.
 
-- lo, lowo, slo, svlo (Lots of documents Opener): these form a document or
-  webpage viewing queue system, they use "silent_cpucsekk" from my other repo
-  "cli_util". Script "slo" is the server, could be launched from your startup
-  sequence. It waits for your system load to settle, then opens the next document
-  or webpage in the queue, stored in ~/.slo/2p.txt. "svlo" does the actual
-  opening (invokes "v" above for most file types). Scripts "lo" and "lowo" feed
-  the queue: "lo [url or (parts of) filename(s)]" just adds the stuff specified
-  in its argument, while "lowo [filename]" goes through the file specified in
-  your ~/.lowo folder and opens webpages in there one by one. Great for going
-  through routine webpages (like news, Facebook, etc) or through a saved list of
-  urls from a long day. See the script for more details.
+- lo, lo2e, lowo, slo, svlo (Lots of documents Opener): these form a document
+  or webpage viewing queue system, they use "silent_cpucsekk" from my other
+  repo "cli_util". Script "slo" is the server, could be launched from your
+  startup sequence. It waits for your system load to settle, then opens the next
+  document or webpage in the queue, stored in ~/.slo/2p.txt. "svlo" does the
+  actual opening (invokes "v" above for most file types). Scripts "lo", "lo2e"
+  and "lowo" feed the queue: "lo/lo2e [url or (parts of) filename(s)]" just adds
+  the stuff specified in its argument, while "lowo [filename]" goes through the
+  file specified in your ~/.lowo folder and opens webpages in there one by one.
+  Great for going through routine webpages (like news, Facebook, etc) or through
+  a saved list of urls from a long day. See the script for more details.
 
 - catthatfile is just a small utility that is used by some of the above. It
   pings the original file every 30 seconds until the copy is being looked at.

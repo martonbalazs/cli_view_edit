@@ -237,13 +237,17 @@ do
    elif [ "$tetszik" == "e" ]; then
     ps2pdf "$elej.ps" "$elej"_email.pdf
     cpcl "$elej"_email.pdf
-    evince "$elej"_email.pdf
+    zathura "$elej"_email.pdf
+    #evince "$elej"_email.pdf
+    #xpdf "$elej"_email.pdf
 
    elif [ "$tetszik" == "f" ]; then
     ps2pdf "$elej.ps" "$elej"_torot.pdf
     pdftk A="$elej"_torot.pdf shuffle Aodd Aevensouth output "$elej"_email.pdf
     cpcl "$elej"_email.pdf
-    evince "$elej"_email.pdf
+    zathura "$elej"_email.pdf
+    #evince "$elej"_email.pdf
+    #xpdf "$elej"_email.pdf
 
 
 # If psbind:
@@ -302,13 +306,17 @@ do
     elif [ "$tetszikp" == "e" ]; then
      ps2pdf "$elej"_"$k.ps" "$elej"_email.pdf
      cpcl "$elej"_email.pdf
-     evince "$elej"_email.pdf
+     zathura "$elej"_email.pdf
+     #evince "$elej"_email.pdf
+     #xpdf "$elej"_email.pdf
 
     elif [ "$tetszikp" == "f" ]; then
      ps2pdf "$elej"_"$k.ps" "$elej"_torot.pdf
      pdftk A="$elej"_torot.pdf shuffle Aodd Aevensouth output "$elej"_email.pdf
      cpcl "$elej"_email.pdf
-     evince "$elej"_email.pdf
+     zathura "$elej"_email.pdf
+     #evince "$elej"_email.pdf
+     #xpdf "$elej"_email.pdf
 
     else
      echo "Ok, forget it."

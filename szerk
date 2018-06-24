@@ -236,10 +236,14 @@ do
     cp 2del_"$elej".pdf 2del_"$elej"_nezd.pdf
    fi
   
-   evince >/dev/null 2>&1 "$elej"_nezd.pdf &
+   zathura >/dev/null 2>&1 "$elej"_nezd.pdf &
+   #evince >/dev/null 2>&1 "$elej"_nezd.pdf &
+   #xpdf >/dev/null 2>&1 "$elej"_nezd.pdf &
    if [ "$wehavetest" -eq "1" ]
    then
-    evince >/dev/null 2>&1 2del_"$elej"_nezd.pdf &
+    zathura >/dev/null 2>&1 2del_"$elej"_nezd.pdf &
+    #evince >/dev/null 2>&1 2del_"$elej"_nezd.pdf &
+    #xpdf >/dev/null 2>&1 2del_"$elej"_nezd.pdf &
    fi
  
    viml="$i $viml"

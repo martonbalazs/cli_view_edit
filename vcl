@@ -47,7 +47,9 @@ do
    cp "$i" /tmp/$k
    catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
-   evince "$i"
+   zathura "$i"
+   #evince "$i"
+   #xpdf "$i"
    
    cd -
  
@@ -227,7 +229,9 @@ do
      echo "Copied to clipboard: `pwd`/$filen"
      echo -n "`pwd`/$filen"|xclip
     fi
-    evince "$elej".pdf sol_"$elej".pdf
+    zathura "$elej".pdf sol_"$elej".pdf
+    #evince "$elej".pdf sol_"$elej".pdf
+    #xpdf "$elej".pdf sol_"$elej".pdf
    else
     read -p "Change xclip to pdf? y
     " wxcl
@@ -237,7 +241,9 @@ do
      echo "Copied to clipboard: `pwd`/$filen"
      echo -n "`pwd`/$filen"|xclip
     fi
-    evince "$elej".pdf
+    zathura "$elej".pdf
+    #evince "$elej".pdf
+    #xpdf "$elej".pdf
    fi
 
    cd -

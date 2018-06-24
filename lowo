@@ -32,9 +32,9 @@ do
  #echo "cmt: $cmt"
  if [[ "$url" != "" ]] && [[ "$url" != "#"* ]] && [[ "$url" != "#" ]] ; then
   if [[ "$url" == "http://"* ]] || [[ "$url" == "https://"* ]] ; then
-# Notice: this uses lo the slo queue feeder, but you could uncomment cpucsekk and use your favourite browser here.
+# Notice: this uses lo2e the slo queue feeder, but you could uncomment cpucsekk and use your favourite browser here.
 #   cpucsekk
-   lo "$url"
+   lo2e "$url"
    echo $cmt
   else
    echo "$line"

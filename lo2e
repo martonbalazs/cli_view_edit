@@ -1,8 +1,7 @@
 #!/bin/bash
 # 2018-01-13
 # Feeder to the slo queue (Lots of files Opener)
-# Use as: lo <part of filename(s)>
-# Adds to the beginning of the queue.
+# Use as: lo2e <part of filename(s)>
 
 if ! pgrep -x "slo" > /dev/null
 then
@@ -11,13 +10,7 @@ fi
 
 if [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]
 then
- if [ -s $HOME/.slo/2p.txt ]
- then
-  echo "$1
-$(cat $HOME/.slo/2p.txt)" > $HOME/.slo/2p.txt
- else
-  echo "$1" > $HOME/.slo/2p.txt
- fi
+ echo "$1" >> $HOME/.slo/2p.txt
 else
  for j in "$@"
  do
@@ -29,13 +22,7 @@ else
 
    cp "$clfn" $HOME/.slo/2p/
    pfn=${clfn##*/}
-   if [ -s $HOME/.slo/2p.txt ]
-   then
-    echo "$pfn
-$(cat $HOME/.slo/2p.txt)" > $HOME/.slo/2p.txt
-   else
-    echo "$pfn" > $HOME/.slo/2p.txt
-   fi
+   echo "$pfn" >> $HOME/.slo/2p.txt
    #silent_cpucsekk
   done
  done
