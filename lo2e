@@ -11,6 +11,7 @@ fi
 if [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]
 then
  echo "$1" >> $HOME/.slo/2p.txt
+ #silent_cpucsekk #No need to wait if writing at end of file
 else
  for j in "$@"
  do
@@ -23,7 +24,7 @@ else
    cp "$clfn" $HOME/.slo/2p/
    pfn=${clfn##*/}
    echo "$pfn" >> $HOME/.slo/2p.txt
-   #silent_cpucsekk
+   #silent_cpucsekk #No need to wait if writing at end of file
   done
  done
 fi

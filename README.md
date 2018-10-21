@@ -69,6 +69,24 @@ Spritz-like CLI reader too.
   Great for going through routine webpages (like news, Facebook, etc) or through
   a saved list of urls from a long day. See the script for more details.
 
+- wothin (webpage opener thinner) is an additional layer to lowo et al. It
+  reads a [file].txt in ~/.lowo/wothin/ that has lines like
+
+```
+lista 2
+listb 3
+listc 7
+```
+
+  where lista.txt, listb.txt and listc.txt are lists in ~/.lowo with webpage
+  urls. Use as wothin [file]. The idea is that one might want to see every item
+  in the file lista.txt once in two days, in listb.txt once in three days, and in
+  listc.txt weekly. However, if e.g. listc has 21 urls, these shouldn't pour at
+  one as 21 webpages all at once every Sunday, rather they should be evenly
+  distributed in groups of 3 throughout a week. This is what wothin [file] will
+  automatically do if run once a day. It prepares the thinned list for the day,
+  then feeds it into lowo.
+
 - catthatfile is just a small utility that is used by some of the above. It
   pings the original file every 30 seconds until the copy is being looked at.
   This makes sure that the filesystem under the original doesn't umount due to

@@ -198,10 +198,16 @@ do
     latex -interaction=nonstopmode "sol_$i"
    fi
    
-   dvipdf "$elej".dvi
+   #dvipdf "$elej".dvi
+   #dvipdfmx "$elej".dvi
+   dvips "$elej".dvi
+   ps2pdf "$elej".ps
    if [ "$solutions" -eq "1" ]
    then
-    dvipdf sol_"$elej".dvi
+    #dvipdf sol_"$elej".dvi
+    #dvipdfmx sol_"$elej".dvi
+    dvips sol_"$elej".dvi
+    ps2pdf sol_"$elej".ps
    fi
  
    if [ "$solutions" -eq "1" ]

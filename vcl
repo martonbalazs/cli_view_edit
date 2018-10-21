@@ -26,6 +26,12 @@ do
  filen=`basename "$i"`
  echo "Copied to clipboard: `pwd`/$filen"
  echo -n "`pwd`/$filen"|xclip
+
+ echo "[Enter] to copy filename only to clipboard"
+ read -n1 -s
+  
+ echo "Copied to clipboard: $filen"
+ echo -n "$filen"|xclip
  
   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]]
   then
@@ -208,10 +214,16 @@ do
     latex -interaction=nonstopmode "sol_$i"
    fi
    
-   dvipdf "$elej".dvi
+   #dvipdf "$elej".dvi
+   #dvipdfm "$elej".dvi
+   dvips "$elej".dvi
+   ps2pdf "$elej".ps
    if [ "$solutions" -eq "1" ]
    then
-    dvipdf sol_"$elej".dvi
+    #dvipdf sol_"$elej".dvi
+    #dvipdfm sol_"$elej".dvi
+    dvips sol_"$elej".dvi
+    ps2pdf sol_"$elej".ps
    fi
  
    if [ "$solutions" -eq "1" ]
@@ -223,11 +235,23 @@ do
      filen=`basename "$elej".pdf`
      echo "Copied to clipboard: `pwd`/$filen"
      echo -n "`pwd`/$filen"|xclip
+
+     echo "[Enter] to copy filename only to clipboard"
+     read -n1 -s
+      
+     echo "Copied to clipboard: $filen"
+     echo -n "$filen"|xclip
     elif [ "$wxcl" == "s" ]
     then
      filen=`basename sol_"$elej".pdf`
      echo "Copied to clipboard: `pwd`/$filen"
      echo -n "`pwd`/$filen"|xclip
+
+     echo "[Enter] to copy filename only to clipboard"
+     read -n1 -s
+      
+     echo "Copied to clipboard: $filen"
+     echo -n "$filen"|xclip
     fi
     zathura "$elej".pdf sol_"$elej".pdf
     #evince "$elej".pdf sol_"$elej".pdf
@@ -240,6 +264,12 @@ do
      filen=`basename "$elej".pdf`
      echo "Copied to clipboard: `pwd`/$filen"
      echo -n "`pwd`/$filen"|xclip
+
+     echo "[Enter] to copy filename only to clipboard"
+     read -n1 -s
+      
+     echo "Copied to clipboard: $filen"
+     echo -n "$filen"|xclip
     fi
     zathura "$elej".pdf
     #evince "$elej".pdf

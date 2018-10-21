@@ -163,7 +163,10 @@ do
    latex "$i"
    latex "$i"
    
-   dvipdf "$elej".dvi
+   #dvipdf "$elej".dvi
+   #dvipdfm "$elej".dvi
+   dvips "$elej".dvi
+   ps2pdf "$elej".ps
   
    cp "$elej".pdf "$elej"_nezd.pdf
   

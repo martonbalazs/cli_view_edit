@@ -1,0 +1,133 @@
+#!/bin/bash
+# wothin: Webpage Opener Thinner
+# Input is a .txt file in ~/.lowo/wothin of the format <lowo file name (no .txt)> <each page to open every . days>
+# Distributes the webpages over that period.
+
+if [[ $# == 1 ]] ; then
+
+ ffront=${1%.*}
+ file=$HOME/.lowo/wothin/$ffront.txt
+ tmplowo=$HOME/.lowo/tmp_$ffront.txt
+
+ if [ ! -f "$file" ] ; then
+  echo "Can't find the file $file."
+  exit
+ fi
+
+ if [ -f "$tmplowo" ] ; then
+  echo "I've found $tmplowo, please remove it first."
+  exit
+ fi
+
+else
+  echo "Usage: wothin <filename>"
+  exit
+fi
+
+# Find least common multiple of periods
+period=$(
+ cat "$file" |
+ awk '
+ 
+ # greatest common divisor
+ function gcd(m, n,    t) {
+ # Euclids method
+  while (n != 0) {
+   t = m
+   m = n
+   n = t % n
+  }
+ return m
+ }
+  
+ # least common multiple
+ function lcm(m, n,    r) {
+  if (m == 0 || n == 0)
+   return 0
+  r = m * n / gcd(m, n)
+  return r < 0 ? -r : r
+ }
+ 
+ BEGIN {
+  # Set initial lcm
+  rlcm=1
+ }
+ 
+ {
+  rlcm=lcm(rlcm,$2)
+ }
+ 
+ END {
+  print(rlcm)
+ } '
+)
+
+# Find period to do, increase by one, save file
+phfile=$HOME/.lowo/wothin/$ffront"_phase"
+if [ ! -f "$phfile" ] ; then
+ phase=0
+else
+ phase=$(cat $phfile)
+fi
+nph=$(( ($phase+1)%$period))
+echo "$nph" > $phfile
+
+# Now comes the main thing, go through each line of file.
+no=$(cat $file | wc -l)
+for i in `seq 1 $no`;
+do
+
+# Read line, get lowo filename and its period
+ loff=$(sed -n "$i p" $file) 
+ lowofile=$(echo $loff|awk '{ print($1) }')
+ lineper=$(echo $loff|awk '{ print($2) }')
+
+# Create clean list of webpages; notice: first line will be empty!!
+ cllowo=""
+ nol=$(cat $HOME/.lowo/$lowofile.txt | wc -l)
+ for j in `seq 1 $nol`;
+ do
+  url=$(sed -n "$j p" $HOME/.lowo/$lowofile.txt) 
+  if [[ "$url" != "" ]] && [[ "$url" != "#"* ]] && [[ "$url" != "#" ]]
+  then
+   cllowo="$cllowo
+$url"
+  fi
+ done
+ #echo "$cllowo"
+
+# Get no of jobs in cleaned lowofile
+ noofjobs=$(( $(echo "$cllowo"|wc -l)-1 ))
+
+# Calculate start and end lines to process today. We are at $phase out of $period. Whichgr goes from 0 to groupno-1.
+ whichgr=$(( $phase%$lineper ))
+ remainder=$(( $noofjobs%$lineper ))
+ basesize=$(( ($noofjobs-$remainder)/$lineper ))
+
+ #echo "Whichgr: $whichgr; remainder: $remainder; basesize: $basesize"
+
+# Do basesize+1 for remainder many, then basesize for rest.
+ if [[ $whichgr -lt $remainder ]]
+ then
+# Notice first line of cllowo is empty
+  startl=$(( $whichgr*($basesize+1)+2 ))
+  endl=$(( $startl+$basesize ))
+  #echo "emelt"
+ else
+  startl=$(( $remainder*($basesize+1)+($whichgr-$remainder)*$basesize+2 ))
+  endl=$(( $startl+$basesize-1 ))
+  #echo "normal"
+ fi
+ #echo "Start: $startl; end: $endl"
+ 
+# Add corresponding lines to tmplowo file
+ echo "$cllowo"|sed -n "$startl","$endl"p >> $tmplowo
+ #echo "$cllowo"|sed -n "$startl","$endl"p
+done
+
+lowo "tmp_$ffront"
+
+silent_cpucsekk
+
+rm "$tmplowo"
+

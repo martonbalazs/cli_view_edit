@@ -35,6 +35,7 @@ do
  then
   line=$(sed -n 1p $HOME/.slo/2p.txt) 
   sed -i 1d $HOME/.slo/2p.txt
+  #sed -i "/$line/d" $HOME/.slo/2p.txt #Cannot handle / in urls :-(
   if [[ "$line" == "http://"* ]] || [[ "$line" == "https://"* ]]
   then
 # mybr is my browser script, can replace this with e.g., "firefox" or "chromium-browser".

@@ -224,10 +224,16 @@ do
     latex 2del_"$i"
    fi
    
-   dvipdf "$elej".dvi
+   #dvipdf "$elej".dvi
+   #dvipdfm "$elej".dvi
+   dvips "$elej".dvi
+   ps2pdf "$elej".ps
    if [ "$wehavetest" -eq "1" ]
    then
-    dvipdf 2del_"$elej".dvi
+    #dvipdf 2del_"$elej".dvi
+    #dvipdfm 2del_"$elej".dvi
+    dvips 2del_"$elej".dvi
+    ps2pdf 2del_"$elej".ps
    fi
   
    cp "$elej".pdf "$elej"_nezd.pdf

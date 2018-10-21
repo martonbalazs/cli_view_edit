@@ -18,6 +18,7 @@ $(cat $HOME/.slo/2p.txt)" > $HOME/.slo/2p.txt
  else
   echo "$1" > $HOME/.slo/2p.txt
  fi
+ sleep 0.3 #Don't interfere with slo processing a new list
 else
  for j in "$@"
  do
@@ -36,7 +37,7 @@ $(cat $HOME/.slo/2p.txt)" > $HOME/.slo/2p.txt
    else
     echo "$pfn" > $HOME/.slo/2p.txt
    fi
-   #silent_cpucsekk
+   sleep 0.3 #Don't interfere with slo processing a new list
   done
  done
 fi

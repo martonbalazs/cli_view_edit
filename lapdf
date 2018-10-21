@@ -8,14 +8,20 @@ ok=0
 if [ -f $elej.ltx ]; then
  cp $elej.pdf "$elej"_nezd.pdf
  latex $elej.ltx
- dvipdf $elej.dvi
+ #dvipdf $elej.dvi
+ #dvipdfm $elej.dvi
+ dvips $elej.dvi
+ ps2pdf $elej.ps
  cp $elej.pdf "$elej"_nezd.pdf
  ok=1
 fi
 if [ -f $elej.tex ]; then
  cp $elej.pdf "$elej"_nezd.pdf
  latex $elej.tex
- dvipdf $elej.dvi
+ #dvipdf $elej.dvi
+ #dvipdfm $elej.dvi
+ dvips $elej.dvi
+ ps2pdf $elej.ps
  cp $elej.pdf "$elej"_nezd.pdf
  ok=1
 fi
