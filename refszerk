@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ ! -f "$1" ]]
+then
+ echo "Cannot find $1"
+ exit
+fi
+
+elej=${1%.*}
+
+lo "$1"
+sleep 1
+lo "$1"
+
+reffile="$elej"_ref.txt
+
+if [[ ! -f "$reffile" ]]
+then
+ touch "$reffile"
+fi
+
+szerk "$reffile"

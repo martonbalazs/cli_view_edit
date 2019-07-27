@@ -47,6 +47,9 @@ Spritz-like CLI reader too.
 - sszerk is very similar except it opens two pdf's for latex files which makes it
   nicer to edit complicated documents.
 
+- refszerk comes handy when you need to report on a document. Just add the
+  document's filename as parameter.
+
 - v [file(s)] or [part(s) of filename(s)] opens any matching files from the
   current directory for viewing. Latex files are compiled in /tmp/ (no mess is
   left behind) and pdf is shown. It can handle a particular boolean LaTeX switch
