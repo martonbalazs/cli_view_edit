@@ -1,19 +1,20 @@
 #!/bin/bash
-# 2018-01-14
+# 2020-04-29
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
 
-for j in "$@"
-do
- for i in *$j*
- do
-  firstfile=i
-  break
- done
- break
-done
+# for j in "$@"
+# do
+#  for i in *$j*
+#  do
+#   firstfile=i
+#   break
+#  done
+#  break
+# done
+
 legelej=${i%.*}
 k=s3$legelej`date +%N`
 mkdir $HOME/tmp/$k
@@ -23,6 +24,7 @@ viml=""
 ffl=""
 ool=""
 files=""
+libofpid=""
 
 for j in "$@"
 do
@@ -45,8 +47,6 @@ do
   then
    echo Found ".szerklock_$i, skipping $i"
    continue
-  else
-   touch ".szerklock_$i"
   fi
 
  # Bash parameter expansion
@@ -68,6 +68,14 @@ do
    files="$i $files"
  
    cd -
+
+   if [ -f ".szerklock_$i" ]
+   then
+    echo Found ".szerklock_$i, skipping $i"
+    continue
+   else
+    touch ".szerklock_$i"
+   fi
   fi 
   
  #### htm, html, wml
@@ -83,11 +91,19 @@ do
    files="$i $files"
  
    cd -
+
+   if [ -f ".szerklock_$i" ]
+   then
+    echo Found ".szerklock_$i, skipping $i"
+    continue
+   else
+    touch ".szerklock_$i"
+   fi
   fi
   
- #### lev, txt, org, php, sql, csv, css, bib
+ #### lev, txt, org, php, sql, csv, css, bib, sty
   
-  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "bib" ]]
+  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "bib" ]] || [[ "$veg" == "sty" ]]
   then
    cp "$i" $HOME/tmp/$k
    catthatfile "$HOME/tmp/$k" "$i" &
@@ -97,6 +113,14 @@ do
    files="$i $files"
  
    cd -
+
+   if [ -f ".szerklock_$i" ]
+   then
+    echo Found ".szerklock_$i, skipping $i"
+    continue
+   else
+    touch ".szerklock_$i"
+   fi
   fi
   
  #### tex, ltx
@@ -182,10 +206,27 @@ do
    files="$i $files"
    
    cd -
+
+   if [ -f ".szerklock_$i" ]
+   then
+    echo Found ".szerklock_$i, skipping $i"
+    continue
+   else
+    touch ".szerklock_$i"
+   fi
    if [[ -f "$elej".bbl ]]
    then
     cp "$elej".bbl $HOME/tmp/$k
     files="$elej.bbl $files"
+
+    if [ -f ".szerklock_$elej.bbl" ]
+    then
+     echo Found ".szerklock_$elej.bbl, skipping $elej.bbl"
+     continue
+    else
+     touch ".szerklock_$elej.bbl"
+    fi
+
     cd $HOME/tmp/$k
     if [ "$wehavetest" -eq "1" ]
     then
@@ -280,6 +321,31 @@ do
    files="$elej.knv $files"
  
    cd -
+
+   if [ -f ".szerklock_$elej.zhk" ]
+   then
+    echo Found ".szerklock_$elej.zhk, skipping $elej.zhk"
+    continue
+   else
+    touch ".szerklock_$elej.zhk"
+   fi
+
+   if [ -f ".szerklock_$elej.kov" ]
+   then
+    echo Found ".szerklock_$elej.kov, skipping $elej.kov"
+    continue
+   else
+    touch ".szerklock_$elej.kov"
+   fi
+
+   if [ -f ".szerklock_$elej.knv" ]
+   then
+    echo Found ".szerklock_$elej.knv, skipping $elej.knv"
+    continue
+   else
+    touch ".szerklock_$elej.knv"
+   fi
+
   fi
  done
 done
@@ -289,7 +355,10 @@ cd $HOME/tmp/$k
 if [ -n "$ool" ]
 then
  libreoffice $ool &
+ # Libreoffice doesn't play nice with lsof :-(
+ libofpid="$!"
 fi
+
 if [ -n "$ffl" ]
 then
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
@@ -301,6 +370,13 @@ then
 fi
 
 # wait till everything closed
+# Libreoffice is not playing nice with lsof
+
+if [ -n "$ool" ]
+then
+ wait "$libofpid"
+fi
+
 cd -
 l=1
 while [ -n "$l" ]; do
@@ -317,6 +393,7 @@ do
   vimdiff -R -M ./$i $HOME/tmp/$k/$i
  fi
 done
+
 
 # Copying back
 baj=0

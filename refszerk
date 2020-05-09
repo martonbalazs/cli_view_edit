@@ -11,6 +11,8 @@ elej=${1%.*}
 lo "$1"
 sleep 1
 lo "$1"
+sleep 1
+lo "$1"
 
 reffile="$elej"_ref.txt
 

@@ -39,7 +39,7 @@ Spritz-like CLI reader too.
   current directory for editing, maybe several at a time. Handles many formats
   according their file extensions. Editing and compiling (latex) is done in a new
   directory in ~/tmp, hence no mess is left behind. Opens appropriate file viewer
-  as well (e.g. evince for compiled latex files, or firefox for viewing html).
+  as well (e.g. zathura for compiled latex files, or firefox for viewing html).
   For latex files an auxiliary file is created (and not saved!!!) if
   %szerkbodystart and %szerkbodyend are found as separate lines, handy for
   editing long presentations (don't need to compile every slide every time).

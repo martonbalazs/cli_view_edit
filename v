@@ -27,7 +27,7 @@ do
   fi
 
 # Evince cannot open a file twice, that's why: 
-  if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]] || [[ "$veg" == "fdf" ]] || [[ "$veg" == "djvu" ]] || [[ "$veg" == "tif" ]] || [[ "$veg" == "TIF" ]]
+  if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]] || [[ "$veg" == "fdf" ]] || [[ "$veg" == "tif" ]] || [[ "$veg" == "TIF" ]]
   then
    k=v3$elej`date +%N`
    mkdir /tmp/$k
@@ -38,6 +38,31 @@ do
    cd /tmp/$k
    zathura "$i"
    #evince "$i"
+   #xpdf "$i"
+   
+   cd -
+ 
+   l=1
+   while [ -n "$l" ]; do
+    sleep 1
+    l=`lsof 2>/dev/null +d /tmp/$k`
+   done
+ 
+   rm -f -R /tmp/$k
+  fi
+ 
+# Evince cannot open a file twice, that's why: 
+  if [[ "$veg" == "djvu" ]]
+  then
+   k=v3$elej`date +%N`
+   mkdir /tmp/$k
+   chmod 700 /tmp/$k/
+ 
+   cp "$i" /tmp/$k
+   catthatfile "/tmp/$k" "$i" &
+   cd /tmp/$k
+   #zathura "$i"
+   evince "$i"
    #xpdf "$i"
    
    cd -
@@ -68,12 +93,12 @@ do
    eog "$i"
   fi
  
-  if [[ "$veg" == "MOV" ]] || [[ "$veg" == "mov" ]] || [[ "$veg" == "wmv" ]] || [[ "$veg" == "WMV" ]] || [[ "$veg" == "wma" ]] || [[ "$veg" == "WMA" ]] || [[ "$veg" == "avi" ]] || [[ "$veg" == "AVI" ]] || [[ "$veg" == "mpg" ]] || [[ "$veg" == "mpeg" ]] || [[ "$veg" == "MPG" ]] || [[ "$veg" == "MPEG" ]] || [[ "$veg" == "mp3" ]] || [[ "$veg" == "MP3" ]] || [[ "$veg" == "ram" ]] || [[ "$veg" == "RAM" ]] || [[ "$veg" == "rm" ]] || [[ "$veg" == "RM" ]] || [[ "$veg" == "ogg" ]] || [[ "$veg" == "OGG" ]]
+  if [[ "$veg" == "MOV" ]] || [[ "$veg" == "mov" ]] || [[ "$veg" == "wmv" ]] || [[ "$veg" == "WMV" ]] || [[ "$veg" == "wma" ]] || [[ "$veg" == "WMA" ]] || [[ "$veg" == "avi" ]] || [[ "$veg" == "AVI" ]] || [[ "$veg" == "mpg" ]] || [[ "$veg" == "mpeg" ]] || [[ "$veg" == "MPG" ]] || [[ "$veg" == "MPEG" ]] || [[ "$veg" == "mp3" ]] || [[ "$veg" == "MP3" ]] || [[ "$veg" == "ram" ]] || [[ "$veg" == "RAM" ]] || [[ "$veg" == "rm" ]] || [[ "$veg" == "RM" ]] || [[ "$veg" == "ogg" ]] || [[ "$veg" == "OGG" ]] || [[ "$veg" == "mp4" ]] || [[ "$veg" == "MP4" ]]
   then
-   mplayer "$i"
+   urxvt -e mplayer "$i"
   fi
  
-  if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$i" != *.* ]]
+  if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$i" != *.* ]]
   then
    vim "+noremap q :q<CR>" "+noremap <Space> <PageDown>" -p -M -R "$i"
   fi
@@ -250,7 +275,8 @@ do
 # notice: mybr is a script in your path for launching your favourite browser.
    mybr "$elej".html &
    
-   gnome-terminal --working-directory=/tmp/$k/
+   #gnome-terminal --working-directory=/tmp/$k/
+   urxvt -cd /tmp/$k/
  
    cd -
  

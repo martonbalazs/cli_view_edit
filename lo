@@ -24,12 +24,17 @@ else
  do
   for i in *$j*
   do
+   k=`date +%N`
    # Alpine is crazy
    clfn=${i//\*/}
+   veg=${clfn##*.}
+   elej=${clfn%.*}
    #gnome-terminal -e "bash -c 'echo "$clfn"; exec bash'"
 
-   cp "$clfn" $HOME/.slo/2p/
-   pfn=${clfn##*/}
+   clfnr="${elej}_${k}.${veg}"
+
+   pfn=${clfnr##*/}
+   cp "$clfn" $HOME/.slo/2p/"$pfn"
    if [ -s $HOME/.slo/2p.txt ]
    then
     echo "$pfn

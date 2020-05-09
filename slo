@@ -24,6 +24,16 @@ then
  touch $HOME/.slo/2p.txt
 fi
 
+# First clean dir, should anything be left there from earlier sessions.
+if [ ! -z "$(ls -A $HOME/.slo/2p)" ]
+then
+ for i in $HOME/.slo/2p/*
+ do
+  intofile=${i##*/}
+  echo "$intofile" >> $HOME/.slo/2p.txt
+ done
+fi
+
 # Main loop: check what needs to be opened and open with browser or svlo.
 while true
 do

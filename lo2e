@@ -17,12 +17,17 @@ else
  do
   for i in *$j*
   do
+   k=`date +%N`
    # Alpine is crazy
    clfn=${i//\*/}
+   veg=${clfn##*.}
+   elej=${clfn%.*}
    #gnome-terminal -e "bash -c 'echo "$clfn"; exec bash'"
 
-   cp "$clfn" $HOME/.slo/2p/
-   pfn=${clfn##*/}
+   clfnr="${elej}_${k}.${veg}"
+
+   pfn=${clfnr##*/}
+   cp "$clfn" $HOME/.slo/2p/"$pfn"
    echo "$pfn" >> $HOME/.slo/2p.txt
    #silent_cpucsekk #No need to wait if writing at end of file
   done

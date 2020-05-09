@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2018-01-14
+# 2019-11-01
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
@@ -84,9 +84,9 @@ do
    cd -
   fi
   
- #### lev, txt, org, php, sql, csv, css
+ #### lev, txt, org, php, sql, csv, css, sty
   
-  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]]
+  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "sty" ]]
   then
    cp "$i" $HOME/tmp/$k
    catthatfile "$HOME/tmp/$k" "$i" &
