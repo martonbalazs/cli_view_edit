@@ -49,7 +49,7 @@ do
    sed -i 1d $HOME/.slo/2p.txt
   fi
   #sed -i "/$line/d" $HOME/.slo/2p.txt #Cannot handle / in urls :-(
-  if [[ "$line" == "http://"* ]] || [[ "$line" == "https://"* ]]
+  if [[ "$line" == "http://"* ]] || [[ "$line" == "https://"* ]] || [[ "$line" == "file://"* ]]
   then
 # mybr is my browser script, can replace this with e.g., "firefox" or "chromium-browser".
    mybr "$line" &

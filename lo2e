@@ -17,7 +17,8 @@ else
  do
   for i in *$j*
   do
-   k=`date +%N`
+   #k=`date +%N`
+   k=`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
    # Alpine is crazy
    clfn=${i//\*/}
    veg=${clfn##*.}

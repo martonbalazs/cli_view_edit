@@ -33,7 +33,8 @@ do
   elej=${i%.*}
 
   if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]] || [[ "$veg" == "ps" ]] || [[ "$veg" == "PS" ]] || [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "htm" ]]; then
-   k=v3$elej`date +%N`
+   #k=v3$elej`date +%N`
+   k=v3$elej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
    mkdir /tmp/$k
    chmod 700 /tmp/$k/
  

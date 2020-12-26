@@ -46,12 +46,13 @@ do
 # Evince cannot open a file twice, that's why: 
   if [[ "$veg" == "pdf" ]] || [[ "$veg" == "PDF" ]] || [[ "$veg" == "fdf" ]] || [[ "$veg" == "djvu" ]] || [[ "$veg" == "tif" ]] || [[ "$veg" == "TIF" ]]
   then
-   k=v3$elej`date +%N`
+   #k=v3$elej`date +%N`
+   k=v3$elej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
    mkdir /tmp/$k
    chmod 700 /tmp/$k/
  
    cp "$i" /tmp/$k
-   catthatfile "/tmp/$k" "$i" &
+   #catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
    zathura "$i"
    #evince "$i"
@@ -65,7 +66,7 @@ do
     l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
-   rm -f -R /tmp/$k
+   #rm -f -R /tmp/$k
   fi
  
   if [[ "$veg" == "dvi" ]]
@@ -86,7 +87,8 @@ do
  
   if [[ "$veg" == "MOV" ]] || [[ "$veg" == "mov" ]] || [[ "$veg" == "wmv" ]] || [[ "$veg" == "WMV" ]] || [[ "$veg" == "wma" ]] || [[ "$veg" == "WMA" ]] || [[ "$veg" == "avi" ]] || [[ "$veg" == "AVI" ]] || [[ "$veg" == "mpg" ]] || [[ "$veg" == "mpeg" ]] || [[ "$veg" == "MPG" ]] || [[ "$veg" == "MPEG" ]] || [[ "$veg" == "mp3" ]] || [[ "$veg" == "MP3" ]] || [[ "$veg" == "ram" ]] || [[ "$veg" == "RAM" ]] || [[ "$veg" == "rm" ]] || [[ "$veg" == "RM" ]] || [[ "$veg" == "ogg" ]] || [[ "$veg" == "OGG" ]] || [[ "$veg" == "mp4" ]] || [[ "$veg" == "MP4" ]]
   then
-   urxvt -e mplayer "$i"
+   #urxvt -e mplayer "$i"
+   urxvt -e pausedmplayer "$i"
   fi
  
   if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$i" != *.* ]]
@@ -96,7 +98,8 @@ do
  
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
-   k=v3$elej`date +%N`
+   #k=v3$elej`date +%N`
+   k=v3$elej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
    mkdir /tmp/$k
    chmod 700 /tmp/$k/
  
@@ -111,7 +114,7 @@ do
    cp *.cls /tmp/$k
    cp *.bst /tmp/$k
    cp *.sty /tmp/$k
-   catthatfile "/tmp/$k" "$i" &
+   #catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
 
 # Do we have solutions?
@@ -284,20 +287,21 @@ do
     l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
-   rm -f -R /tmp/$k
+   #rm -f -R /tmp/$k
   fi
  
  
   if [[ "$veg" == "zhk" ]]
   then
-   k=v3$elej`date +%N`
+   #k=v3$elej`date +%N`
+   k=v3$elej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
    mkdir /tmp/$k
    chmod 700 /tmp/$k/
  
    cp "$i" /tmp/$k
    cp "$elej.kov" /tmp/$k
    cp "$elej.knv" /tmp/$k
-   catthatfile "/tmp/$k" "$i" &
+   #catthatfile "/tmp/$k" "$i" &
    cd /tmp/$k
  
    zh "$elej"
@@ -316,7 +320,7 @@ do
     l=`lsof 2>/dev/null +d /tmp/$k`
    done
  
-   rm -f -R /tmp/$k
+   #rm -f -R /tmp/$k
   fi
 
   if [[ "$veg" == "MP4" ]]

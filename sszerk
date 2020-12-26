@@ -14,7 +14,8 @@ do
  break
 done
 legelej=${i%.*}
-k=s3$legelej`date +%N`
+#k=s3$legelej`date +%N`
+k=s3$legelej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
 mkdir $HOME/tmp/$k
 chmod 700 $HOME/tmp/$k/
 

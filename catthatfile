@@ -2,7 +2,7 @@
 # This script reads $2 regularly until directory $1 is in use. Good to prevent automatic umount of the filesystem under $2.
 
 while [ -d "$1" ]; do
- d=`date +%y%m%d`_catthatfile_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c10`
+ d=`date +%y%m%d_%H%M%S`_catthatfile_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c10`
  mkdir ".$d"
  cp $2 ".$d/"
  sleep 5

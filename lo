@@ -9,7 +9,7 @@ then
  echo "I need the slo server running but it's apparently not."
 fi
 
-if [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]]
+if [[ "$1" == "http://"* ]] || [[ "$1" == "https://"* ]] || [[ "$1" == "file://"* ]]
 then
  if [ -s $HOME/.slo/2p.txt ]
  then
@@ -24,7 +24,9 @@ else
  do
   for i in *$j*
   do
-   k=`date +%N`
+   #k=`date +%N`
+   #k=`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5` <-- mailcap under fish dies... :-(
+   k=`date +%y%m%d_%H%M%S_%N`
    # Alpine is crazy
    clfn=${i//\*/}
    veg=${clfn##*.}

@@ -2,18 +2,37 @@
 # 2018-01-13
 # File opener for the slo queue, called by slo. Needs "v", and "silent_cpucsekk" from my cli_util repo (or you could just replace that line by "sleep 1").
 
+mkdir -p "/tmp/svlo_$USER/"
+
+chmod 700 "/tmp/svlo_$USER/"
+
 cd $HOME/.slo/2p/
 veg=${1##*.}
 # echo "$veg"
 
+mv "$1" "/tmp/svlo_$USER/"
+
+cd "/tmp/svlo_$USER/"
+
 # Vim needs a new terminal
-if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$1" != *.* ]]
+if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$1" != *.* ]]
 then
- gnome-terminal -e "bash -c 'vim \"+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1'"
+ #gnome-terminal -e "bash -c 'vim \"+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1'"
+ #urxvt -e bash -c 'vim \+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1; exec bash' &
+ ablakbanless "$1"
 else
  v "$1"
 fi
 
-# This is from my cli_util repo. Makes sure stuff is not deleted before used.
-silent_cpucsekk
-rm "$1"
+## This is from my cli_util repo. Makes sure stuff is not deleted before used.
+#silent_cpucsekk
+#
+## Don't erase until eog runs as multiple instances are handled by one process.
+#while true
+#do
+# ps cax | grep eog > /dev/null
+# if [ ! $? -eq 0 ]; then
+#  break
+# fi
+# sleep 1
+#done

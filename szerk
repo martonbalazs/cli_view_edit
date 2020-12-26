@@ -1,5 +1,5 @@
 #!/bin/bash
-# 2020-04-29
+# 2020-12-15
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
@@ -16,7 +16,8 @@
 # done
 
 legelej=${i%.*}
-k=s3$legelej`date +%N`
+#k=s3$legelej`date +%N`
+k=s3$legelej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
 mkdir $HOME/tmp/$k
 chmod 700 $HOME/tmp/$k/
 
@@ -201,6 +202,7 @@ do
    if [ "$wehavetest" -eq "1" ]
    then
     echo "%!!! This is a temporary file only and will NOT be saved by szerk." | cat - 2del_"$i" > 2deltmp_"$i" && mv 2deltmp_"$i" 2del_"$i" 
+    cp 2del_"$i" 2del_orig_"$i"
     latex 2del_"$i"
    fi
    files="$i $files"
@@ -399,6 +401,24 @@ done
 baj=0
 for i in $files
 do
+ if [[ -f $HOME/tmp/$k/2del_"$i" ]] && [[ -f $HOME/tmp/$k/2del_orig_"$i" ]]
+ then
+  cmp $HOME/tmp/$k/2del_"$i" $HOME/tmp/$k/2del_orig_"$i"
+  if [ "$?" -ne "0" ]
+  then
+   echo "2del_$i has changed"
+   #insteadofless $HOME/tmp/$k/2del_"$i"
+   while true
+   do
+    read -s -p "ARE YOU SURE YOU WANT TO DELETE IT? [sure] " ki
+    if [ "$ki" == "sure" ]; then
+     break
+    else
+     vim -p $HOME/tmp/$k/2del_"$i" $HOME/tmp/$k/$i
+    fi
+   done
+  fi
+ fi
  cmp -s $HOME/tmp/$k/$i ./$i
  if [ "$?" -ne "0" ]; then
   cp $HOME/tmp/$k/$i .
