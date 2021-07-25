@@ -2,6 +2,7 @@
 # wothin: Webpage Opener Thinner
 # Input is a .txt file in ~/.lowo/wothin of the format <lowo file name (no .txt)> <each page to open every . days>
 # Distributes the webpages over that period.
+# Added hrut support [2021-06-20 Sun] (changed whole thing to separately handle phases; simpler this way)
 
 if [[ $# == 1 ]] ; then
 
@@ -11,76 +12,42 @@ if [[ $# == 1 ]] ; then
 
  if [ ! -f "$file" ] ; then
   echo "Can't find the file $file."
-  exit
+  exit 1
  fi
 
  if [ -f "$tmplowo" ] ; then
   echo "I've found $tmplowo, please remove it first."
-  exit
+  exit 1
  fi
 
 else
   echo "Usage: wothin <filename>"
-  exit
+  exit 1
 fi
 
-# Find least common multiple of periods
-period=$(
- cat "$file" |
- awk '
- 
- # greatest common divisor
- function gcd(m, n,    t) {
- # Euclids method
-  while (n != 0) {
-   t = m
-   m = n
-   n = t % n
-  }
- return m
- }
-  
- # least common multiple
- function lcm(m, n,    r) {
-  if (m == 0 || n == 0)
-   return 0
-  r = m * n / gcd(m, n)
-  return r < 0 ? -r : r
- }
- 
- BEGIN {
-  # Set initial lcm
-  rlcm=1
- }
- 
- {
-  rlcm=lcm(rlcm,$2)
- }
- 
- END {
-  print(rlcm)
- } '
-)
+touch "$tmplowo"
 
-# Find period to do, increase by one, save file
-phfile=$HOME/.lowo/wothin/$ffront"_phase"
-if [ ! -f "$phfile" ] ; then
- phase=0
+# Deal with hrut
+if [[ -f ~/.hrut/hrut.pkl ]]
+then
+ hrutvalue=$(hrut)
+ if [[ $hrutvalue -gt 100 ]]
+ then
+  hrutvalue="100"
+ fi 
 else
- phase=$(cat $phfile)
+ hrutvalue="100"
 fi
-nph=$(( ($phase+1)%$period))
-echo "$nph" > $phfile
 
-# Now comes the main thing, go through each line of file.
+#Idea: go through each line of wothin file. Open line-of-file / period integer * hrutvalue / 100 upper integer part many, going in cycles.
 no=$(cat $file | wc -l)
 for i in `seq 1 $no`;
 do
 
-# Read line, get lowo filename and its period
+# Read line, get lowo filename and its period (i.e., how many days for the full file once)
  loff=$(sed -n "$i p" $file) 
  lowofile=$(echo $loff|awk '{ print($1) }')
- lineper=$(echo $loff|awk '{ print($2) }')
+ period=$(echo $loff|awk '{ print($2) }')
 
 # Create clean list of webpages; notice: first line will be empty!!
  cllowo=""
@@ -94,35 +61,53 @@ do
 $url"
   fi
  done
- #echo "$cllowo"
+### echo "cllowo: $cllowo"
 
-# Get no of jobs in cleaned lowofile
- noofjobs=$(( $(echo "$cllowo"|wc -l)-1 ))
+# Get no of jobs in cleaned lowofile, this is how many total we have.
+ noofjobs=$(($(echo "$cllowo"|wc -l)-1))
+### echo "$noofjobs"
 
-# Calculate start and end lines to process today. We are at $phase out of $period. Whichgr goes from 0 to groupno-1.
- whichgr=$(( $phase%$lineper ))
- remainder=$(( $noofjobs%$lineper ))
- basesize=$(( ($noofjobs-$remainder)/$lineper ))
+# How many lines do we need to do per day? Notice upper integer part:
+ portion=$((($noofjobs+$period-1)/$period))
 
- #echo "Whichgr: $whichgr; remainder: $remainder; basesize: $basesize"
+# Correct by hrut
+ hportion=$(($portion*$hrutvalue/100))
+### echo "$hportion"
 
-# Do basesize+1 for remainder many, then basesize for rest.
- if [[ $whichgr -lt $remainder ]]
- then
-# Notice first line of cllowo is empty
-  startl=$(( $whichgr*($basesize+1)+2 ))
-  endl=$(( $startl+$basesize ))
-  #echo "emelt"
+# Find period to do, increase by one, save file. phase is the line number we stopped at last time.
+ phfile=$HOME/.lowo/wothin/$lowofile"_phase"
+ if [ ! -f "$phfile" ] ; then
+  phase=0
  else
-  startl=$(( $remainder*($basesize+1)+($whichgr-$remainder)*$basesize+2 ))
-  endl=$(( $startl+$basesize-1 ))
-  #echo "normal"
+  phase=$(cat $phfile)
  fi
- #echo "Start: $startl; end: $endl"
- 
-# Add corresponding lines to tmplowo file
- echo "$cllowo"|sed -n "$startl","$endl"p >> $tmplowo
- #echo "$cllowo"|sed -n "$startl","$endl"p
+
+# Write the new phase
+ nph=$((($phase+$hportion)%$noofjobs))
+ echo "$nph" > $phfile
+### echo "$nph"
+
+# We start today with job phase+1 on line phase+2 BECAUSE first line of cllowo is empty!!
+ startl=$(($phase+2))
+
+# And stop with job no = the new phase value nph. Except we turn over. AND: the first line of cllowo is empty!!
+ stopa=$(($nph+1))
+ if [[ $nph -lt $phase ]]
+# We rolled over. We stop on the last job, plus go from job 1 to job nph. But that's line 2 to nph+1.
+ then
+  stope=$(($noofjobs+1))
+  echo "$cllowo"|sed -n "$startl","$stope"p >> $tmplowo
+  if [[ $stopa -gt 1 ]]
+  then
+   echo "$cllowo"|sed -n "2","$stopa"p >> $tmplowo
+  fi
+ else
+# No rollover.
+  if [[ $stopa -ge $startl ]]
+  then
+   echo "$cllowo"|sed -n "$startl","$stopa"p >> $tmplowo
+  fi
+ fi
 done
 
 lowo "tmp_$ffront"

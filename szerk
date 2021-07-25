@@ -124,6 +124,32 @@ do
    fi
   fi
   
+ #### xopp
+  
+  if [[ "$veg" == "xopp" ]]
+  then
+   cp "$i" $HOME/tmp/$k
+   catthatfile "$HOME/tmp/$k" "$i" &
+
+   cp *.pdf $HOME/tmp/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.pdf $files"
+   fi
+   cd $HOME/tmp/$k
+   xournalpp "$i"
+   files="$i $files"
+   
+   cd -
+
+   if [ -f ".szerklock_$i" ]
+   then
+    echo Found ".szerklock_$i, skipping $i"
+    continue
+   else
+    touch ".szerklock_$i"
+   fi
+  fi
  #### tex, ltx
   
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]

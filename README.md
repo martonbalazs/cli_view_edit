@@ -18,8 +18,8 @@ Spritz-like CLI reader too.
   for email-printing. If psbind (http://freecode.com/projects/psbind) is
   installed then it applies psbind with a push of a button. The printer can be
   specified in the file ~/.prevlpr_printer.txt . It can handle a particular
-  boolean LaTeX switch of the type "setbool{solu}{true}" or
-  "setbool{solu}{false}" which I use for solutions on or off in problem sheets or
+  boolean LaTeX switch of the type `setbool{solu}{true}` or
+  `setbool{solu}{false}` which I use for solutions on or off in problem sheets or
   exams (notice this won't work with dos-type linebreaks).
 
 - rbyw (Read By Word) is yet another Spritz-like reader
@@ -53,7 +53,7 @@ Spritz-like CLI reader too.
 - v [file(s)] or [part(s) of filename(s)] opens any matching files from the
   current directory for viewing. Latex files are compiled in /tmp/ (no mess is
   left behind) and pdf is shown. It can handle a particular boolean LaTeX switch
-  of the type "setbool{solu}{true}" or "setbool{solu}{false}" which I use for
+  of the type `setbool{solu}{true}` or `setbool{solu}{false}` which I use for
   solutions on or off in problem sheets or exams (notice this won't work with
   dos-type linebreaks).
 
@@ -61,16 +61,18 @@ Spritz-like CLI reader too.
   we want to make a notice of the file.
 
 - lo, lo2e, lowo, slo, svlo (Lots of documents Opener): these form a document
-  or webpage viewing queue system, they use "silent_cpucsekk" from my other
-  repo "cli_util". Script "slo" is the server, could be launched from your
+  or webpage viewing queue system, they use `silent_cpucsekk` from my other
+  repo `cli_util`. Script `slo` is the server, could be launched from your
   startup sequence. It waits for your system load to settle, then opens the next
-  document or webpage in the queue, stored in ~/.slo/2p.txt. "svlo" does the
-  actual opening (invokes "v" above for most file types). Scripts "lo", "lo2e"
-  and "lowo" feed the queue: "lo/lo2e [url or (parts of) filename(s)]" just adds
-  the stuff specified in its argument, while "lowo [filename]" goes through the
+  document or webpage in the queue, stored in ~/.slo/2p.txt. `svlo` does the
+  actual opening (invokes `v` above for most file types). Scripts `lo`, `lo2e`
+  and `lowo` feed the queue: `lo/lo2e [url or (parts of) filename(s)]` just adds
+  the stuff specified in its argument, while `lowo [filename]` goes through the
   file specified in your ~/.lowo folder and opens webpages in there one by one.
   Great for going through routine webpages (like news, Facebook, etc) or through
   a saved list of urls from a long day. See the script for more details.
+
+  `lowo -p` now understands recommendations, if present, by `hrut`. It will only open an url with the probability recommended by `hrut`, and this is done independently across the list. See my repo `hrut` to make sense of this.
 
 - wothin (webpage opener thinner) is an additional layer to lowo et al. It
   reads a [file].txt in ~/.lowo/wothin/ that has lines like
@@ -82,13 +84,15 @@ listc 7
 ```
 
   where lista.txt, listb.txt and listc.txt are lists in ~/.lowo with webpage
-  urls. Use as wothin [file]. The idea is that one might want to see every item
+  urls. Use as `wothin [file]`. The idea is that one might want to see every item
   in the file lista.txt once in two days, in listb.txt once in three days, and in
   listc.txt weekly. However, if e.g. listc has 21 urls, these shouldn't pour at
   one as 21 webpages all at once every Sunday, rather they should be evenly
   distributed in groups of 3 throughout a week. This is what wothin [file] will
   automatically do if run once a day. It prepares the thinned list for the day,
   then feeds it into lowo.
+
+  If `hrut` has a recommendation then `wothin` will respect that too. See my repo `hrut` to make sense of this.
 
 - catthatfile is just a small utility that is used by some of the above. It
   pings the original file every 30 seconds until the copy is being looked at.
