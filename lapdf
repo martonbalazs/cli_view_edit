@@ -11,7 +11,7 @@ if [ -f $elej.ltx ]; then
  #dvipdf $elej.dvi
  #dvipdfm $elej.dvi
  dvips $elej.dvi
- ps2pdf $elej.ps
+ ps2pdf -dALLOWPSTRANSPARENCY $elej.ps
  cp $elej.pdf "$elej"_nezd.pdf
  ok=1
 fi
@@ -21,7 +21,7 @@ if [ -f $elej.tex ]; then
  #dvipdf $elej.dvi
  #dvipdfm $elej.dvi
  dvips $elej.dvi
- ps2pdf $elej.ps
+ ps2pdf -dALLOWPSTRANSPARENCY $elej.ps
  cp $elej.pdf "$elej"_nezd.pdf
  ok=1
 fi

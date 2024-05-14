@@ -1,5 +1,4 @@
 #!/bin/bash
-# 2015.12.30
 # Printer can be specified in file ~/.prevlpr_printer.txt
 # converts things to ps, shows them, prints them.
 # Obviously, if you prefer psbinding a print then you need psbind in the path. http://freecode.com/projects/psbind
@@ -107,6 +106,16 @@ do
      solutions=1
     fi
  
+    if grep -q "setbool{fullsolu}{true}" "$i"
+    then
+     solutions=2
+    fi
+ 
+    if grep -q "setbool{fullsolu}{false}" "$i"
+    then
+     solutions=2
+    fi
+ 
     if [ "$solutions" -eq "1" ]
     then
      read -p "This file has solutions [s] or no solutions [n] versions. Hit s or n, or else keep the original.
@@ -152,6 +161,97 @@ do
       }' > nosol_"$i"
 
       mv nosol_"$i" "$i"
+     fi
+
+    fi
+
+    if [ "$solutions" -eq "2" ]
+    then
+     read -p "This file has full solutions [f] or solutions [s] or no solutions [n] versions. Hit f s or n, or else keep the original.
+     " solnosol
+
+     if [ "$solnosol" == "s" ]
+     then
+      cat $i |
+      awk ' BEGIN{ 
+       soldone=0
+       fullsoldone=0
+      }
+      {
+       if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+        if (soldone==0) {
+         print("\\setbool{solu}{true}");
+         soldone=1
+        };
+       }
+       else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+        if (fullsoldone==0) {
+         print("\\setbool{fullsolu}{false}");
+         fullsoldone=1
+        };
+       }
+       else {
+        print($0)
+       };
+      }' > sol_"$i"
+
+      mv sol_"$i" "$i"
+     fi
+
+     if [ "$solnosol" == "n" ]
+     then
+      cat $i |
+      awk ' BEGIN{ 
+       soldone=0
+       fullsoldone=0
+      }
+      {
+       if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+        if (soldone==0) {
+         print("\\setbool{solu}{false}");
+         soldone=1
+        };
+       }
+       else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+        if (fullsoldone==0) {
+         print("\\setbool{fullsolu}{false}");
+         fullsoldone=1
+        };
+       }
+       else {
+        print($0)
+       };
+      }' > nosol_"$i"
+
+      mv nosol_"$i" "$i"
+     fi
+
+     if [ "$solnosol" == "f" ]
+     then
+      cat $i |
+      awk ' BEGIN{ 
+       soldone=0
+       fullsoldone=0
+      }
+      {
+       if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+        if (soldone==0) {
+         print("\\setbool{solu}{true}");
+         soldone=1
+        };
+       }
+       else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+        if (fullsoldone==0) {
+         print("\\setbool{fullsolu}{true}");
+         fullsoldone=1
+        };
+       }
+       else {
+        print($0)
+       };
+      }' > fullsol_"$i"
+
+      mv fullsol_"$i" "$i"
      fi
 
     fi

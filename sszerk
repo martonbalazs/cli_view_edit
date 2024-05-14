@@ -1,8 +1,10 @@
 #!/bin/bash
-# 2019-11-01
 # Usage: szerk [any number of strings]
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
+
+# Work directory (for example, $HOME/tmp or /tmp):
+wkdir="$HOME/a"
 
 for j in "$@"
 do
@@ -16,8 +18,8 @@ done
 legelej=${i%.*}
 #k=s3$legelej`date +%N`
 k=s3$legelej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
-mkdir $HOME/tmp/$k
-chmod 700 $HOME/tmp/$k/
+mkdir $wkdir/$k
+chmod 700 $wkdir/$k/
 
 viml=""
 ffl=""
@@ -60,9 +62,9 @@ do
   
   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    ool="$i $ool"
    files="$i $files"
@@ -74,9 +76,9 @@ do
   
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    viml="$i $viml"
    ffl="$i $ffl"
@@ -89,9 +91,9 @@ do
   
   if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "sty" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    viml="$i $viml"
    files="$i $files"
@@ -103,58 +105,58 @@ do
   
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cp *.bib $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cp *.bib $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.bib $files"
    fi
-   cp *.png $HOME/tmp/$k
+   cp *.png $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.png $files"
    fi
-   cp *.pdf $HOME/tmp/$k
+   cp *.pdf $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.pdf $files"
    fi
-   cp *.eps $HOME/tmp/$k
+   cp *.eps $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.eps $files"
    fi
-   cp *.epsi $HOME/tmp/$k
+   cp *.epsi $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.epsi $files"
    fi
-   cp *.ps $HOME/tmp/$k
+   cp *.ps $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.ps $files"
    fi
-   cp *.clo $HOME/tmp/$k
-   cp *.cls $HOME/tmp/$k
-   cp *.bst $HOME/tmp/$k
-   cp *.sty $HOME/tmp/$k
+   cp *.clo $wkdir/$k
+   cp *.cls $wkdir/$k
+   cp *.bst $wkdir/$k
+   cp *.sty $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.sty $files"
    fi
-   cd $HOME/tmp/$k
+   cd $wkdir/$k
    latex "$i"
    files="$i $files"
    
    cd -
    if [[ -f "$elej".bbl ]]
    then
-    cp "$elej".bbl $HOME/tmp/$k
+    cp "$elej".bbl $wkdir/$k
     files="$elej.bbl $files"
-    cd $HOME/tmp/$k
+    cd $wkdir/$k
    else
-    cd $HOME/tmp/$k
+    cd $wkdir/$k
     bibtex "$elej".aux
    fi
 
@@ -187,11 +189,11 @@ do
   
   if [[ "$veg" == "zhk" ]]
   then
-   cp "$elej.zhk" $HOME/tmp/$k
-   cp "$elej.kov" $HOME/tmp/$k
-   cp "$elej.knv" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$elej.zhk" $wkdir/$k
+   cp "$elej.kov" $wkdir/$k
+   cp "$elej.knv" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    zh "$i"
    
@@ -207,7 +209,7 @@ do
 done
 
 # open everyone in vim, openoffice and firefox.
-cd $HOME/tmp/$k
+cd $wkdir/$k
 if [ -n "$ool" ]
 then
  libreoffice $ool &
@@ -227,16 +229,16 @@ cd -
 l=1
 while [ -n "$l" ]; do
  sleep 1
- l=`lsof 2>/dev/null +d $HOME/tmp/$k`
-#  echo "$HOME/tmp/$k/$elej.$veg nyitva"
+ l=`lsof 2>/dev/null +d $wkdir/$k`
+#  echo "$wkdir/$k/$elej.$veg nyitva"
 done
 
 # Check changes for text edits
 for i in $viml
 do
- cmp -s $HOME/tmp/$k/$i ./$i
+ cmp -s $wkdir/$k/$i ./$i
  if [ "$?" -ne "0" ]; then
-  vimdiff -R -M ./$i $HOME/tmp/$k/$i
+  vimdiff -R -M ./$i $wkdir/$k/$i
  fi
 done
 
@@ -244,26 +246,44 @@ done
 baj=0
 for i in $files
 do
- cmp -s $HOME/tmp/$k/$i ./$i
+ cmp -s $wkdir/$k/$i ./$i
  if [ "$?" -ne "0" ]; then
-  cp $HOME/tmp/$k/$i .
+  cp $wkdir/$k/$i .
   if [ "$?" -ne "0" ]
   then
-   echo "!!! Problem with $HOME/tmp/$k/$i !!!"
+   echo "!!! Problem with $wkdir/$k/$i !!!"
    baj=1
   else
-   echo "$HOME/tmp/$k/$i --> $PWD"
+   echo "$wkdir/$k/$i --> $PWD"
   fi
  fi
- if [ -f ./".szerklock_$i" ]
- then
-  rm ./".szerklock_$i"
- fi
+ while true
+ do
+  if [ -f ./".szerklock_$i" ]
+  then
+   echo "Removing .szerklock_$i"
+   rm ./".szerklock_$i"
+   sleep 1
+  else
+   break
+  fi
+ done
 done
 
 if [ "$baj" -ne "1" ]
 then
- rm -f -R $HOME/tmp/$k
+ while true
+ do
+  if [ -d "$wkdir/$k" ]
+  then
+   echo "Removing $wkdir/$k"
+   rm -f -R $wkdir/$k
+   sleep 1
+  else
+   break
+  fi
+ done
 else
- echo "!!! Problem with, $HOME/tmp/$k/ has not been deleted !!!"
+ echo "!!! Problem with, $wkdir/$k/ has not been deleted !!!"
 fi
+

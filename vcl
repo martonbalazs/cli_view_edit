@@ -1,5 +1,4 @@
 #!/bin/bash
-# 2018-01-14
 # Usage: v [any number of strings]
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
@@ -92,9 +91,15 @@ do
   fi
  
   if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$i" != *.* ]]
+  #if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$i" != *.* ]]
   then
    vim "+noremap q :q<CR>" "+noremap <Space> <PageDown>" -p -M -R "$i"
   fi
+
+#  if [[ "$veg" == "org" ]]
+#  then
+#   emacs "$i" --eval '(setq buffer-read-only t)'
+#  fi
  
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
@@ -127,6 +132,16 @@ do
    if grep -q "setbool{solu}{false}" "$i"
    then
     solutions=1
+   fi
+
+   if grep -q "setbool{fullsolu}{true}" "$i"
+   then
+    solutions=2
+   fi
+
+   if grep -q "setbool{fullsolu}{false}" "$i"
+   then
+    solutions=2
    fi
 
    if [ "$solutions" -eq "1" ]
@@ -164,15 +179,92 @@ do
     }' > nosol_"$i"
    fi
 
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -eq "2" ]
+   then
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{true}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{false}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > sol_"$i"
+
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{false}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{false}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > nosol_"$i"
+
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{true}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{true}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > fullsol_"$i"
+   fi
+
+
+   if [ "$solutions" -ge "1" ]
    then
     mv nosol_"$i" "$i"
    fi
 
    latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
     latex -interaction=nonstopmode "sol_$i"
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    latex -interaction=nonstopmode "fullsol_$i"
    fi
    
    cd -
@@ -180,59 +272,105 @@ do
    then
     cp "$elej".bbl /tmp/$k
     cd /tmp/$k
-    if [ "$solutions" -eq "1" ]
+    if [ "$solutions" -ge "1" ]
     then
      cp "$elej".bbl sol_"$elej".bbl
     fi
+    if [ "$solutions" == "2" ]
+    then
+     cp "$elej".bbl fullsol_"$elej".bbl
+    fi
    else
     cd /tmp/$k
-    bibtex "$elej".aux
-    if [ "$solutions" -eq "1" ]
-    then
-     bibtex sol_"$elej".aux
+    if grep -q "bibliography{" "$elej".tex; then
+     bibtex "$elej".aux
+     if [ "$solutions" -ge "1" ]
+     then
+      bibtex sol_"$elej".aux
+     fi
+     if [ "$solutions" == "2" ]
+     then
+      bibtex fullsol_"$elej".aux
+     fi
+    fi
+    if grep -q "addbibresource{" "$elej".tex; then
+     biber "$elej"
+     if [ "$wehavetest" -eq "1" ]
+     then
+      biber 2del_"$elej"
+     fi
     fi
    fi
  
    makeindex "$elej"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
     makeindex sol_"$elej"
    fi
-
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" == "2" ]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    makeindex fullsol_"$elej"
    fi
 
    latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
     latex -interaction=nonstopmode "sol_$i"
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    latex -interaction=nonstopmode "fullsol_$i"
+   fi
+
+   latex -interaction=nonstopmode "$i"
+   if [ "$solutions" -ge "1" ]
+   then
+    latex -interaction=nonstopmode "sol_$i"
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    latex -interaction=nonstopmode "fullsol_$i"
    fi
  
    latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
     latex -interaction=nonstopmode "sol_$i"
+   fi
+   if [ "$solutions" -eq "2" ]
+   then
+    latex -interaction=nonstopmode "fullsol_$i"
    fi
    
    #dvipdf "$elej".dvi
    #dvipdfm "$elej".dvi
    dvips "$elej".dvi
-   ps2pdf "$elej".ps
-   if [ "$solutions" -eq "1" ]
+   ps2pdf -dALLOWPSTRANSPARENCY "$elej".ps
+   if [ "$solutions" -ge "1" ]
    then
     #dvipdf sol_"$elej".dvi
     #dvipdfm sol_"$elej".dvi
     dvips sol_"$elej".dvi
-    ps2pdf sol_"$elej".ps
+    ps2pdf -dALLOWPSTRANSPARENCY sol_"$elej".ps
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    dvips fullsol_"$elej".dvi
+    ps2pdf -dALLOWPSTRANSPARENCY fullsol_"$elej".ps
    fi
  
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
-    read -p "Change xclip to [n] no solution, [s] to solution, or keep source?
-    " wxcl
+    if [ "$solutions" == "1" ]
+    then
+     read -p "Change xclip to [n] no solution, [s] to solution, or keep source?
+     " wxcl
+    fi
+    if [ "$solutions" == "2" ]
+    then
+     read -p "Change xclip to [n] no solution, [s] to solution, [f] full solution, or keep source?
+     " wxcl
+    fi
     if [ "$wxcl" == "n" ]
     then
      filen=`basename "$elej".pdf`
@@ -255,10 +393,26 @@ do
       
      echo "Copied to clipboard: $filen"
      echo -n "$filen"|xclip
+    elif [ "$wxcl" == "f" ]
+    then
+     filen=`basename fullsol_"$elej".pdf`
+     echo "Copied to clipboard: `pwd`/$filen"
+     echo -n "`pwd`/$filen"|xclip
+
+     echo "[Enter] to copy filename only to clipboard"
+     read -n1 -s
+      
+     echo "Copied to clipboard: $filen"
+     echo -n "$filen"|xclip
     fi
-    zathura "$elej".pdf sol_"$elej".pdf
-    #evince "$elej".pdf sol_"$elej".pdf
-    #xpdf "$elej".pdf sol_"$elej".pdf
+    if [[ "$solutions" == "2" ]]
+    then
+     zathura "$elej".pdf sol_"$elej".pdf fullsol_"$elej".pdf
+    else
+     zathura "$elej".pdf sol_"$elej".pdf
+     #evince "$elej".pdf sol_"$elej".pdf
+     #xpdf "$elej".pdf sol_"$elej".pdf
+    fi
    else
     read -p "Change xclip to pdf? y
     " wxcl

@@ -38,11 +38,13 @@ Spritz-like CLI reader too.
 - szerk [file(s)] or [part(s) of filename(s)] opens any matching files from the
   current directory for editing, maybe several at a time. Handles many formats
   according their file extensions. Editing and compiling (latex) is done in a new
-  directory in ~/tmp, hence no mess is left behind. Opens appropriate file viewer
-  as well (e.g. zathura for compiled latex files, or firefox for viewing html).
-  For latex files an auxiliary file is created (and not saved!!!) if
-  %szerkbodystart and %szerkbodyend are found as separate lines, handy for
-  editing long presentations (don't need to compile every slide every time).
+  directory in a work directory that's set at the beginning of the script, hence
+  no mess is left behind. Opens appropriate file viewer as well (e.g. zathura for
+  compiled latex files, or firefox for viewing html). For latex files an
+  auxiliary file is created (and not saved!!!) if %szerkbodystart and
+  %szerkbodyend are found as separate lines, handy for editing long presentations
+  (don't need to compile every slide every time). Optional -p uses pdflatex
+  instead of latex.
 
 - sszerk is very similar except it opens two pdf's for latex files which makes it
   nicer to edit complicated documents.
@@ -55,7 +57,7 @@ Spritz-like CLI reader too.
   left behind) and pdf is shown. It can handle a particular boolean LaTeX switch
   of the type `setbool{solu}{true}` or `setbool{solu}{false}` which I use for
   solutions on or off in problem sheets or exams (notice this won't work with
-  dos-type linebreaks).
+  dos-type linebreaks). Optional -p uses pdflatex instead of latex.
 
 - vcl is very similar, it also copies full filename into xclipboard, useful if
   we want to make a notice of the file.

@@ -1,7 +1,7 @@
 #!/bin/bash
 # 2018-01-13
 # Lots Of Webpages Opener (lowo)
-# Use as: lowo <filename> , where <filename> is without extension. Opens webpages in ~/.lowo/<filename>.txt .
+# Use as: lowo <filename> , where <filename> can be without extension. Opens webpages in the file or, if that doesn't exist, in ~/.lowo/<filename>.txt .
 # Accepts the -p option for only opening with a probability read from hrut.
 # Lines starting with # are ignored.
 # Url's to open must start the line with "http" in the file; any comments to display can come after a space.
@@ -25,8 +25,13 @@ else
  exit 1
 fi
 
-ffront=${rawfname%.*}
-file=$HOME/.lowo/$ffront.txt
+if [[ -f "$rawfname" ]]
+then
+ file="$rawfname"
+else
+ ffront=${rawfname%.*}
+ file=$HOME/.lowo/$ffront.txt
+fi
 
 if [ ! -f $file ] ; then
  echo "Can't find the file $file."

@@ -15,7 +15,7 @@ mv "$1" "/tmp/svlo_$USER/"
 cd "/tmp/svlo_$USER/"
 
 # Vim needs a new terminal
-if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$1" != *.* ]]
+if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$1" != *.* ]]
 then
  #gnome-terminal -e "bash -c 'vim \"+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1'"
  #urxvt -e bash -c 'vim \+noremap q :q<CR>\" \"+noremap <Space> <PageDown>\" -p -M -R $1; exec bash' &

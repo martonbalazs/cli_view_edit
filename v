@@ -1,10 +1,25 @@
 #!/bin/bash
-# 2018-01-14
-# Usage: v [any number of strings]
+# Usage: v [any number of strings]; v -p [any number of strings] to use pdflatex instead of latex then dvips.
 # opens all files (of types below) that have any of the strings in their names
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
 
-for j in "$@"
+# Process -p option
+while getopts p opcio
+do
+ case "$opcio" in
+  p) pdflatex="1"
+ esac
+done
+
+if [[ "$pdflatex" == 1 ]]
+then
+ tocut="$@"	#Since $@ is special in Bash parameter expansion
+ filelist="${tocut#* }"	#Cut until the first space (i.e., the parameter -p)
+else
+ filelist="$@"
+fi
+
+for j in "$filelist"
 do
  for i in *$j*
  do
@@ -106,9 +121,15 @@ do
   fi
  
   if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$veg" == "org" ]] || [[ "$i" != *.* ]]
+  #if [[ "$veg" == "lev" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "log" ]] || [[ "$i" != *.* ]]
   then
    vim "+noremap q :q<CR>" "+noremap <Space> <PageDown>" -p -M -R "$i"
   fi
+
+#  if [[ "$veg" == "org" ]]
+#  then
+#   emacs "$i" --eval '(setq buffer-read-only t)'
+#  fi
  
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
@@ -121,6 +142,7 @@ do
    cp *.bib /tmp/$k
    cp *.pdf /tmp/$k
    cp *.png /tmp/$k
+   cp *.jpg /tmp/$k
    cp *.eps /tmp/$k
    cp *.epsi /tmp/$k
    cp *.ps /tmp/$k
@@ -141,6 +163,16 @@ do
    if grep -q "setbool{solu}{false}" "$i"
    then
     solutions=1
+   fi
+
+   if grep -q "setbool{fullsolu}{true}" "$i"
+   then
+    solutions=2
+   fi
+
+   if grep -q "setbool{fullsolu}{false}" "$i"
+   then
+    solutions=2
    fi
 
    if [ "$solutions" -eq "1" ]
@@ -178,15 +210,106 @@ do
     }' > nosol_"$i"
    fi
 
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -eq "2" ]
+   then
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{true}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{false}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > sol_"$i"
+
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{false}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{false}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > nosol_"$i"
+
+    cat $i |
+    awk ' BEGIN{ 
+     soldone=0
+     fullsoldone=0
+    }
+    {
+     if ($0=="\%\\setbool{solu}{true}" || $0=="\\setbool{solu}{true}" || $0=="\%\\setbool{solu}{false}" || $0=="\\setbool{solu}{false}") {
+      if (soldone==0) {
+       print("\\setbool{solu}{true}");
+       soldone=1
+      };
+     }
+     else if ($0=="\%\\setbool{fullsolu}{true}" || $0=="\\setbool{fullsolu}{true}" || $0=="\%\\setbool{fullsolu}{false}" || $0=="\\setbool{fullsolu}{false}") {
+      if (fullsoldone==0) {
+       print("\\setbool{fullsolu}{true}");
+       fullsoldone=1
+      };
+     }
+     else {
+      print($0)
+     };
+    }' > fullsol_"$i"
+   fi
+
+   if [ "$solutions" -ge "1" ]
    then
     mv nosol_"$i" "$i"
    fi
 
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [[ "$pdflatex" == "1" ]]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
+   if [ "$solutions" -ge "1" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
    
    cd -
@@ -194,53 +317,141 @@ do
    then
     cp "$elej".bbl /tmp/$k
     cd /tmp/$k
-    if [ "$solutions" -eq "1" ]
+    if [ "$solutions" -ge "1" ]
     then
      cp "$elej".bbl sol_"$elej".bbl
     fi
+    if [ "$solutions" == "2" ]
+    then
+     cp "$elej".bbl fullsol_"$elej".bbl
+    fi
    else
     cd /tmp/$k
-    bibtex "$elej".aux
-    if [ "$solutions" -eq "1" ]
-    then
-     bibtex sol_"$elej".aux
+    if grep -q "bibliography{" "$elej".tex; then
+     bibtex "$elej".aux
+     if [ "$solutions" -ge "1" ]
+     then
+      bibtex sol_"$elej".aux
+     fi
+     if [ "$solutions" == "1" ]
+     then
+      bibtex fullsol_"$elej".aux
+     fi
+    fi
+    if grep -q "addbibresource{" "$elej".tex; then
+     biber "$elej"
     fi
    fi
  
    makeindex "$elej"
-   if [ "$solutions" -eq "1" ]
+   if [ "$solutions" -ge "1" ]
    then
     makeindex sol_"$elej"
    fi
+   if [ "$solutions" == "2" ]
+   then
+    makeindex fullsol_"$elej"
+   fi
 
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [[ "$pdflatex" == "1" ]]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
+   if [ "$solutions" -ge "1" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
  
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [[ "$pdflatex" == "1" ]]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
+   if [ "$solutions" -ge "1" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
  
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -eq "1" ]
+   if [[ "$pdflatex" == "1" ]]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
+   if [ "$solutions" -ge "1" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
    
    #dvipdf "$elej".dvi
    #dvipdfmx "$elej".dvi
-   dvips "$elej".dvi
-   ps2pdf "$elej".ps
-   if [ "$solutions" -eq "1" ]
+   if [[ "$pdflatex" != "1" ]]
+   then
+    dvips "$elej".dvi
+    ps2pdf -dALLOWPSTRANSPARENCY "$elej".ps
+   fi
+   if [ "$solutions" -ge "1" ]
    then
     #dvipdf sol_"$elej".dvi
     #dvipdfmx sol_"$elej".dvi
-    dvips sol_"$elej".dvi
-    ps2pdf sol_"$elej".ps
+    if [[ "$pdflatex" != "1" ]]
+    then
+     dvips sol_"$elej".dvi
+     ps2pdf -dALLOWPSTRANSPARENCY sol_"$elej".ps
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" != "1" ]]
+    then
+     dvips fullsol_"$elej".dvi
+     ps2pdf -dALLOWPSTRANSPARENCY fullsol_"$elej".ps
+    fi
    fi
  
    if [ "$solutions" -eq "1" ]
@@ -248,6 +459,9 @@ do
     zathura "$elej".pdf sol_"$elej".pdf
     #evince "$elej".pdf sol_"$elej".pdf
     #xpdf "$elej".pdf sol_"$elej".pdf
+   elif [ "$solutions" -eq "2" ]
+   then
+    zathura "$elej".pdf sol_"$elej".pdf fullsol_"$elej".pdf
    else
     zathura "$elej".pdf
     #evince "$elej".pdf

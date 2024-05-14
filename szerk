@@ -1,6 +1,5 @@
 #!/bin/bash
-# 2020-12-15
-# Usage: szerk [any number of strings]
+# Usage: szerk [any number of strings]; szerk -p [any number of strings] to use pdflatex instead of latex then dvips.
 # opens and edits all files (of types below) that have any of the strings in their names, then copies them back to their original locations.
 # for latex files: an auxiliary file is created (and not saved!!!) if %szerkbodystart and %szerkbodyend are found as separate lines. Good for editing slides (don't need to compile everything every time).
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
@@ -15,19 +14,43 @@
 #  break
 # done
 
-legelej=${i%.*}
+#legelej=${i%.*}
 #k=s3$legelej`date +%N`
-k=s3$legelej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
-mkdir $HOME/tmp/$k
-chmod 700 $HOME/tmp/$k/
+#k=s3$legelej`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
+
+# Process -p option
+while getopts p opcio
+do
+ case "$opcio" in
+  p) pdflatex="1"
+ esac
+done
+
+if [[ "$pdflatex" == 1 ]]
+then
+ tocut="$@"	#Since $@ is special in Bash parameter expansion
+ filelist="${tocut#* }"	#Cut until the first space (i.e., the parameter -p)
+else
+ filelist="$@"
+fi
+# echo "$filelist"
+# read -n1 -s
+ 
+# Work directory (for example, $HOME/tmp or /tmp):
+wkdir="$HOME/a"
+
+k=s3`date +%y%m%d_%H%M%S`_`strings /dev/urandom | tr -dc a-z-0-9 | tr -d - | head -c5`
+mkdir $wkdir/$k
+chmod 700 $wkdir/$k/
 
 viml=""
+emacsl=""
 ffl=""
 ool=""
 files=""
 libofpid=""
 
-for j in "$@"
+for j in "$filelist"
 do
 
  for i in *$j*
@@ -61,9 +84,9 @@ do
   
   if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    ool="$i $ool"
    files="$i $files"
@@ -83,9 +106,9 @@ do
   
   if [[ "$veg" == "htm" ]] || [[ "$veg" == "html" ]] || [[ "$veg" == "wml" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    viml="$i $viml"
    ffl="$i $ffl"
@@ -102,13 +125,13 @@ do
    fi
   fi
   
- #### lev, txt, org, php, sql, csv, css, bib, sty
+ #### lev, txt, php, sql, csv, css, bib, sty, org
   
-  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "org" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "bib" ]] || [[ "$veg" == "sty" ]]
+  if [[ "$veg" == "rnd" ]] || [[ "$veg" == "lev" ]] || [[ "$veg" == "m" ]] || [[ "$veg" == "txt" ]] || [[ "$veg" == "php" ]] || [[ "$veg" == "sql" ]] || [[ "$i" != *.* ]] || [[ "$veg" == "csv" ]] || [[ "$veg" == "css" ]] || [[ "$veg" == "bib" ]] || [[ "$veg" == "sty" ]] || [[ "$veg" == "org" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    viml="$i $viml"
    files="$i $files"
@@ -124,19 +147,41 @@ do
    fi
   fi
   
+# #### org
+#  
+#  if [[ "$veg" == "org" ]]
+#  then
+#   cp "$i" $wkdir/$k
+#   catthatfile "$wkdir/$k" "$i" &
+#   cd $wkdir/$k
+# 
+#   emacsl="$i $emacsl"
+#   files="$i $files"
+# 
+#   cd -
+#
+#   if [ -f ".szerklock_$i" ]
+#   then
+#    echo Found ".szerklock_$i, skipping $i"
+#    continue
+#   else
+#    touch ".szerklock_$i"
+#   fi
+#  fi
+  
  #### xopp
   
   if [[ "$veg" == "xopp" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
 
-   cp *.pdf $HOME/tmp/$k
+   cp *.pdf $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.pdf $files"
    fi
-   cd $HOME/tmp/$k
+   cd $wkdir/$k
    xournalpp "$i"
    files="$i $files"
    
@@ -154,47 +199,52 @@ do
   
   if [[ "$veg" == "tex" ]] || [[ "$veg" == "ltx" ]]
   then
-   cp "$i" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cp *.bib $HOME/tmp/$k
+   cp "$i" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cp *.bib $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.bib $files"
    fi
-   cp *.pdf $HOME/tmp/$k
+   cp *.pdf $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.pdf $files"
    fi
-   cp *.png $HOME/tmp/$k
+   cp *.png $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.png $files"
    fi
-   cp *.eps $HOME/tmp/$k
+   cp *.jpg $wkdir/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.jpg $files"
+   fi
+   cp *.eps $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.eps $files"
    fi
-   cp *.epsi $HOME/tmp/$k
+   cp *.epsi $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.epsi $files"
    fi
-   cp *.ps $HOME/tmp/$k
+   cp *.ps $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.ps $files"
    fi
-   cp *.clo $HOME/tmp/$k
-   cp *.cls $HOME/tmp/$k
-   cp *.bst $HOME/tmp/$k
-   cp *.sty $HOME/tmp/$k
+   cp *.clo $wkdir/$k
+   cp *.cls $wkdir/$k
+   cp *.bst $wkdir/$k
+   cp *.sty $wkdir/$k
    if [ "$?" == 0 ]
    then
     files="*.sty $files"
    fi
-   cd $HOME/tmp/$k
+   cd $wkdir/$k
 
 # Make an empty frame
    cat $i |
@@ -224,12 +274,22 @@ do
     wehavetest=0
    fi
 
-   latex "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex "$i"
+   else
+    latex "$i"
+   fi
    if [ "$wehavetest" -eq "1" ]
    then
     echo "%!!! This is a temporary file only and will NOT be saved by szerk." | cat - 2del_"$i" > 2deltmp_"$i" && mv 2deltmp_"$i" 2del_"$i" 
     cp 2del_"$i" 2del_orig_"$i"
-    latex 2del_"$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex 2del_"$i"
+    else
+     latex 2del_"$i"
+    fi
    fi
    files="$i $files"
    
@@ -244,7 +304,7 @@ do
    fi
    if [[ -f "$elej".bbl ]]
    then
-    cp "$elej".bbl $HOME/tmp/$k
+    cp "$elej".bbl $wkdir/$k
     files="$elej.bbl $files"
 
     if [ -f ".szerklock_$elej.bbl" ]
@@ -255,17 +315,26 @@ do
      touch ".szerklock_$elej.bbl"
     fi
 
-    cd $HOME/tmp/$k
+    cd $wkdir/$k
     if [ "$wehavetest" -eq "1" ]
     then
      cp "$elej".bbl 2del_"$elej".bbl
     fi
    else
-    cd $HOME/tmp/$k
-    bibtex "$elej".aux
-    if [ "$wehavetest" -eq "1" ]
-    then
-     bibtex 2del_"$elej".aux
+    cd $wkdir/$k
+    if grep -q "bibliography{" "$elej".tex; then
+     bibtex "$elej".aux
+     if [ "$wehavetest" -eq "1" ]
+     then
+      bibtex 2del_"$elej".aux
+     fi
+    fi
+    if grep -q "addbibresource{" "$elej".tex; then
+     biber "$elej"
+     if [ "$wehavetest" -eq "1" ]
+     then
+      biber 2del_"$elej"
+     fi
     fi
    fi
 
@@ -275,34 +344,72 @@ do
     makeindex 2del_"$elej"
    fi
   
-   latex "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex "$i"
+   else
+    latex "$i"
+   fi
    if [ "$wehavetest" -eq "1" ]
    then
-    latex 2del_"$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex 2del_"$i"
+    else
+     latex 2del_"$i"
+    fi
    fi
   
-   latex "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex "$i"
+   else
+    latex "$i"
+   fi
    if [ "$wehavetest" -eq "1" ]
    then
-    latex 2del_"$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex 2del_"$i"
+    else
+     latex 2del_"$i"
+    fi
    fi
   
-   latex "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex "$i"
+   else
+    latex "$i"
+   fi
    if [ "$wehavetest" -eq "1" ]
    then
-    latex 2del_"$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex 2del_"$i"
+    else
+     latex 2del_"$i"
+    fi
    fi
    
    #dvipdf "$elej".dvi
    #dvipdfm "$elej".dvi
-   dvips "$elej".dvi
-   ps2pdf "$elej".ps
+   if [[ "$pdflatex" != "1" ]]
+   then
+    dvips "$elej".dvi
+    #ps2pdf "$elej".ps
+    ps2pdf -dALLOWPSTRANSPARENCY "$elej".ps
+   fi
    if [ "$wehavetest" -eq "1" ]
    then
     #dvipdf 2del_"$elej".dvi
     #dvipdfm 2del_"$elej".dvi
-    dvips 2del_"$elej".dvi
-    ps2pdf 2del_"$elej".ps
+    if [[ "$pdflatex" != "1" ]]
+    then
+     dvips 2del_"$elej".dvi
+     #ps2pdf 2del_"$elej".ps
+     ps2pdf -dALLOWPSTRANSPARENCY 2del_"$elej".ps
+    fi
    fi
   
    cp "$elej".pdf "$elej"_nezd.pdf
@@ -312,6 +419,7 @@ do
    fi
   
    zathura >/dev/null 2>&1 "$elej"_nezd.pdf &
+   zathura >/dev/null 2>&1 "$elej".pdf &
    #evince >/dev/null 2>&1 "$elej"_nezd.pdf &
    #xpdf >/dev/null 2>&1 "$elej"_nezd.pdf &
    if [ "$wehavetest" -eq "1" ]
@@ -334,11 +442,11 @@ do
   
   if [[ "$veg" == "zhk" ]]
   then
-   cp "$elej.zhk" $HOME/tmp/$k
-   cp "$elej.kov" $HOME/tmp/$k
-   cp "$elej.knv" $HOME/tmp/$k
-   catthatfile "$HOME/tmp/$k" "$i" &
-   cd $HOME/tmp/$k
+   cp "$elej.zhk" $wkdir/$k
+   cp "$elej.kov" $wkdir/$k
+   cp "$elej.knv" $wkdir/$k
+   catthatfile "$wkdir/$k" "$i" &
+   cd $wkdir/$k
  
    zh "$i"
    
@@ -378,8 +486,8 @@ do
  done
 done
 
-# open everyone in vim, openoffice and firefox
-cd $HOME/tmp/$k
+# open everyone in vim, emacs, openoffice and firefox
+cd $wkdir/$k
 if [ -n "$ool" ]
 then
  libreoffice $ool &
@@ -396,6 +504,10 @@ if [ -n "$viml" ]
 then
  vim -p $viml
 fi
+if [ -n "$emacsl" ]
+then
+ emacs $emacsl
+fi
 
 # wait till everything closed
 # Libreoffice is not playing nice with lsof
@@ -409,16 +521,23 @@ cd -
 l=1
 while [ -n "$l" ]; do
  sleep 1
- l=`lsof 2>/dev/null +d $HOME/tmp/$k`
-#  echo "$HOME/tmp/$k/$elej.$veg nyitva"
+ l=`lsof 2>/dev/null +d $wkdir/$k`
+#  echo "$wkdir/$k/$elej.$veg nyitva"
 done
 
 # Check changes for text edits
 for i in $viml
 do
- cmp -s $HOME/tmp/$k/$i ./$i
+ cmp -s $wkdir/$k/$i ./$i
  if [ "$?" -ne "0" ]; then
-  vimdiff -R -M ./$i $HOME/tmp/$k/$i
+  vimdiff -R -M ./$i $wkdir/$k/$i
+ fi
+done
+for i in $emacsl
+do
+ cmp -s $wkdir/$k/$i ./$i
+ if [ "$?" -ne "0" ]; then
+  vimdiff -R -M ./$i $wkdir/$k/$i
  fi
 done
 
@@ -427,44 +546,62 @@ done
 baj=0
 for i in $files
 do
- if [[ -f $HOME/tmp/$k/2del_"$i" ]] && [[ -f $HOME/tmp/$k/2del_orig_"$i" ]]
+ if [[ -f $wkdir/$k/2del_"$i" ]] && [[ -f $wkdir/$k/2del_orig_"$i" ]]
  then
-  cmp $HOME/tmp/$k/2del_"$i" $HOME/tmp/$k/2del_orig_"$i"
+  cmp $wkdir/$k/2del_"$i" $wkdir/$k/2del_orig_"$i"
   if [ "$?" -ne "0" ]
   then
    echo "2del_$i has changed"
-   #insteadofless $HOME/tmp/$k/2del_"$i"
+   #insteadofless $wkdir/$k/2del_"$i"
    while true
    do
     read -s -p "ARE YOU SURE YOU WANT TO DELETE IT? [sure] " ki
     if [ "$ki" == "sure" ]; then
      break
     else
-     vim -p $HOME/tmp/$k/2del_"$i" $HOME/tmp/$k/$i
+     vim -p $wkdir/$k/2del_"$i" $wkdir/$k/$i
     fi
    done
   fi
  fi
- cmp -s $HOME/tmp/$k/$i ./$i
+ cmp -s $wkdir/$k/$i ./$i
  if [ "$?" -ne "0" ]; then
-  cp $HOME/tmp/$k/$i .
+  cp $wkdir/$k/$i .
   if [ "$?" -ne "0" ]
   then
-   echo "!!! Problem with $HOME/tmp/$k/$i !!!"
+   echo "!!! Problem with $wkdir/$k/$i !!!"
    baj=1
   else
-   echo "$HOME/tmp/$k/$i --> $PWD"
+   echo "$wkdir/$k/$i --> $PWD"
   fi
  fi
- if [ -f ./".szerklock_$i" ]
- then
-  rm ./".szerklock_$i"
- fi
+ while true
+ do
+  if [ -f ./".szerklock_$i" ]
+  then
+   echo "Removing .szerklock_$i"
+   rm ./".szerklock_$i"
+   sleep 1
+  else
+   break
+  fi
+ done
 done
 
 if [ "$baj" -ne "1" ]
 then
- rm -f -R $HOME/tmp/$k
+ while true
+ do
+  if [ -d "$wkdir/$k" ]
+  then
+   echo "Removing $wkdir/$k"
+   rm -f -R $wkdir/$k
+   sleep 1
+  else
+   break
+  fi
+ done
 else
- echo "!!! Problem with, $HOME/tmp/$k/ has not been deleted !!!"
+ echo "!!! Problem with, $wkdir/$k/ has not been deleted !!!"
 fi
+
