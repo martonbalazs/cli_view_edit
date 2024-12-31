@@ -61,18 +61,18 @@ do
 $url"
   fi
  done
-### echo "cllowo: $cllowo"
+#echo "cllowo: $cllowo"
 
 # Get no of jobs in cleaned lowofile, this is how many total we have.
  noofjobs=$(($(echo "$cllowo"|wc -l)-1))
-### echo "$noofjobs"
+#echo "noofjobs: $noofjobs"
 
 # How many lines do we need to do per day? Notice upper integer part:
  portion=$((($noofjobs+$period-1)/$period))
 
 # Correct by hrut
  hportion=$(($portion*$hrutvalue/100))
-### echo "$hportion"
+#echo "portion: $hportion"
 
 # Find period to do, increase by one, save file. phase is the line number we stopped at last time.
  phfile=$HOME/.lowo/wothin/$lowofile"_phase"
@@ -82,27 +82,30 @@ $url"
   phase=$(cat $phfile)
  fi
 
-# Write the new phase
- nph=$((($phase+$hportion)%$noofjobs))
+# Write the new phase. Keep going until portion*period, imagine virtual empty lines at end of file.
+ nph=$(($phase+$hportion))
+ virtuallines=$(($portion*$period))
+ if [[ $nph -ge $virtuallines ]]
+ then
+  nph=0
+ fi
  echo "$nph" > $phfile
-### echo "$nph"
+#echo "new phase: $nph"
 
 # We start today with job phase+1 on line phase+2 BECAUSE first line of cllowo is empty!!
  startl=$(($phase+2))
+#echo "startl: $startl"
 
 # And stop with job no = the new phase value nph. Except we turn over. AND: the first line of cllowo is empty!!
  stopa=$(($nph+1))
- if [[ $nph -lt $phase ]]
-# We rolled over. We stop on the last job, plus go from job 1 to job nph. But that's line 2 to nph+1.
+#echo "stopa: $stopa"
+ if [[ $nph -le $phase ]]
+# We rolled over or are watching empty virtual lines. We stop on the last job.
  then
   stope=$(($noofjobs+1))
   echo "$cllowo"|sed -n "$startl","$stope"p >> $tmplowo
-  if [[ $stopa -gt 1 ]]
-  then
-   echo "$cllowo"|sed -n "2","$stopa"p >> $tmplowo
-  fi
  else
-# No rollover.
+# No rollover. We may be watching empty virtual lines though so the lines interval may be out of range but that's ok, sed will be empty.
   if [[ $stopa -ge $startl ]]
   then
    echo "$cllowo"|sed -n "$startl","$stopa"p >> $tmplowo
