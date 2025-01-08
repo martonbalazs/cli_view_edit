@@ -38,6 +38,7 @@ then
 else
  hrutvalue="100"
 fi
+# echo "Hrutvalue: $hrutvalue"
 
 #Idea: go through each line of wothin file. Open line-of-file / period integer * hrutvalue / 100 upper integer part many, going in cycles.
 no=$(cat $file | wc -l)
@@ -90,6 +91,7 @@ $url"
   nph=0
  fi
  echo "$nph" > $phfile
+#echo "old phase: $phase"
 #echo "new phase: $nph"
 
 # We start today with job phase+1 on line phase+2 BECAUSE first line of cllowo is empty!!
@@ -99,7 +101,7 @@ $url"
 # And stop with job no = the new phase value nph. Except we turn over. AND: the first line of cllowo is empty!!
  stopa=$(($nph+1))
 #echo "stopa: $stopa"
- if [[ $nph -le $phase ]]
+ if [[ $nph < $phase ]]
 # We rolled over or are watching empty virtual lines. We stop on the last job.
  then
   stope=$(($noofjobs+1))
