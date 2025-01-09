@@ -62,7 +62,7 @@ do
 $url"
   fi
  done
-#echo "cllowo: $cllowo"
+# echo "cllowo: $cllowo"
 
 # Get no of jobs in cleaned lowofile, this is how many total we have.
  noofjobs=$(($(echo "$cllowo"|wc -l)-1))
@@ -91,28 +91,30 @@ $url"
   nph=0
  fi
  echo "$nph" > $phfile
-#echo "old phase: $phase"
-#echo "new phase: $nph"
+# echo "virtuallines: $virtuallines"
+# echo "old phase: $phase"
+# echo "new phase: $nph"
 
 # We start today with job phase+1 on line phase+2 BECAUSE first line of cllowo is empty!!
  startl=$(($phase+2))
-#echo "startl: $startl"
+# echo "startl: $startl"
 
-# And stop with job no = the new phase value nph. Except we turn over. AND: the first line of cllowo is empty!!
+# And stop with job no = the new phase value nph. The first line of cllowo is empty!!
  stopa=$(($nph+1))
-#echo "stopa: $stopa"
- if [[ $nph < $phase ]]
-# We rolled over or are watching empty virtual lines. We stop on the last job.
+# echo "stopa: $stopa"
+##### if [[ $nph -lt $phase ]]
+###### We rolled over or are watching empty virtual lines. We stop on the last job.
+##### then
+#####  stope=$(($noofjobs+1))
+#####echo "stope: $stope"
+#####  echo "$cllowo"|sed -n "$startl","$stope"p >> $tmplowo
+##### else
+###### No rollover. We may be watching empty virtual lines though so the lines interval may be out of range but that's ok, sed will be empty.
+ if [[ $stopa -ge $startl ]]
  then
-  stope=$(($noofjobs+1))
-  echo "$cllowo"|sed -n "$startl","$stope"p >> $tmplowo
- else
-# No rollover. We may be watching empty virtual lines though so the lines interval may be out of range but that's ok, sed will be empty.
-  if [[ $stopa -ge $startl ]]
-  then
-   echo "$cllowo"|sed -n "$startl","$stopa"p >> $tmplowo
-  fi
+  echo "$cllowo"|sed -n "$startl","$stopa"p >> $tmplowo
  fi
+ #####fi
 done
 
 lowo "tmp_$ffront"
