@@ -75,7 +75,7 @@ $url"
  hportion=$(($portion*$hrutvalue/100))
 #echo "portion: $hportion"
 
-# Find period to do, increase by one, save file. phase is the line number we stopped at last time.
+# Find where to start, phase is the line number we stopped at last time.
  phfile=$HOME/.lowo/wothin/$lowofile"_phase"
  if [ ! -f "$phfile" ] ; then
   phase=0
@@ -83,15 +83,8 @@ $url"
   phase=$(cat $phfile)
  fi
 
-# Write the new phase. Keep going until portion*period, imagine virtual empty lines at end of file.
+# Write the new phase.
  nph=$(($phase+$hportion))
- virtuallines=$(($portion*$period))
- if [[ $nph -ge $virtuallines ]]
- then
-  nph=0
- fi
- echo "$nph" > $phfile
-# echo "virtuallines: $virtuallines"
 # echo "old phase: $phase"
 # echo "new phase: $nph"
 
@@ -115,6 +108,15 @@ $url"
   echo "$cllowo"|sed -n "$startl","$stopa"p >> $tmplowo
  fi
  #####fi
+ #
+# Keep going until portion*period, imagine virtual empty lines at end of file.
+ virtuallines=$(($portion*$period))
+ if [[ $nph -ge $virtuallines ]]
+ then
+  nph=0
+ fi
+ echo "$nph" > $phfile
+# echo "virtuallines: $virtuallines"
 done
 
 lowo "tmp_$ffront"
