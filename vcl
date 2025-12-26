@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: v [any number of strings]
+# Usage: vcl [any number of strings]; vcl -p [any number of strings] to use pdflatex instead of latex then dvips.
 # opens all files (of types below) that have any of the strings in their names
 # Needs xclip and then copies full filename into xclipboard too.
 # notice: mybr is a script in your path for launching your favourite browser. Could as well replace by e.g. "firefox" or "chromium-browser".
@@ -10,7 +10,23 @@ if [ "$?" -ne "0" ]; then
  exit
 fi
 
-for j in "$@"
+# Process -p option
+while getopts p opcio
+do
+ case "$opcio" in
+  p) pdflatex="1"
+ esac
+done
+
+if [[ "$pdflatex" == 1 ]]
+then
+ tocut="$@"	#Since $@ is special in Bash parameter expansion
+ filelist="${tocut#* }"	#Cut until the first space (i.e., the parameter -p)
+else
+ filelist="$@"
+fi
+
+for j in "$filelist"
 do
  for i in *$j*
  do
@@ -32,7 +48,7 @@ do
  echo "Copied to clipboard: $filen"
  echo -n "$filen"|xclip
  
-  if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]]
+  if [[ "$veg" == "doc" ]] || [[ "$veg" == "docx" ]] || [[ "$veg" == "dotx" ]] || [[ "$veg" == "rtf" ]] || [[ "$veg" == "ods" ]] || [[ "$veg" == "odt" ]] || [[ "$veg" == "xls" ]] || [[ "$veg" == "xlsx" ]] || [[ "$veg" == "xlsm" ]] || [[ "$veg" == "ppt" ]] || [[ "$veg" == "pptx" ]] || [[ "$veg" == "pps" ]] || [[ "$veg" == "csv" ]]
   then
    libreoffice -view "$i"
   fi
@@ -79,7 +95,7 @@ do
    mybr "$i" &
   fi
  
-  if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]]
+  if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]] || [[ "$veg" == "webp" ]]
   then
    eog "$i"
   fi
@@ -110,8 +126,10 @@ do
  
    cp "$i" /tmp/$k
    cp *.bib /tmp/$k
+   cp *.tex /tmp/$k
    cp *.pdf /tmp/$k
    cp *.png /tmp/$k
+   cp *.jpg /tmp/$k
    cp *.eps /tmp/$k
    cp *.epsi /tmp/$k
    cp *.ps /tmp/$k
@@ -251,20 +269,34 @@ do
     }' > fullsol_"$i"
    fi
 
-
    if [ "$solutions" -ge "1" ]
    then
     mv nosol_"$i" "$i"
    fi
 
-   latex -interaction=nonstopmode "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
    if [ "$solutions" -ge "1" ]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
    fi
    if [ "$solutions" == "2" ]
    then
-    latex -interaction=nonstopmode "fullsol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
    
    cd -
@@ -295,10 +327,6 @@ do
     fi
     if grep -q "addbibresource{" "$elej".tex; then
      biber "$elej"
-     if [ "$wehavetest" -eq "1" ]
-     then
-      biber 2del_"$elej"
-     fi
     fi
    fi
  
@@ -312,51 +340,105 @@ do
     makeindex fullsol_"$elej"
    fi
 
-   latex -interaction=nonstopmode "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
    if [ "$solutions" -ge "1" ]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
    fi
    if [ "$solutions" == "2" ]
    then
-    latex -interaction=nonstopmode "fullsol_$i"
-   fi
-
-   latex -interaction=nonstopmode "$i"
-   if [ "$solutions" -ge "1" ]
-   then
-    latex -interaction=nonstopmode "sol_$i"
-   fi
-   if [ "$solutions" == "2" ]
-   then
-    latex -interaction=nonstopmode "fullsol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
  
-   latex -interaction=nonstopmode "$i"
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
    if [ "$solutions" -ge "1" ]
    then
-    latex -interaction=nonstopmode "sol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
    fi
-   if [ "$solutions" -eq "2" ]
+   if [ "$solutions" == "2" ]
    then
-    latex -interaction=nonstopmode "fullsol_$i"
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
+   fi
+ 
+   if [[ "$pdflatex" == "1" ]]
+   then
+    pdflatex -interaction=nonstopmode "$i"
+   else
+    latex -interaction=nonstopmode "$i"
+   fi
+   if [ "$solutions" -ge "1" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "sol_$i"
+    else
+     latex -interaction=nonstopmode "sol_$i"
+    fi
+   fi
+   if [ "$solutions" == "2" ]
+   then
+    if [[ "$pdflatex" == "1" ]]
+    then
+     pdflatex -interaction=nonstopmode "fullsol_$i"
+    else
+     latex -interaction=nonstopmode "fullsol_$i"
+    fi
    fi
    
    #dvipdf "$elej".dvi
    #dvipdfm "$elej".dvi
-   dvips "$elej".dvi
-   ps2pdf -dALLOWPSTRANSPARENCY "$elej".ps
+   if [[ "$pdflatex" != "1" ]]
+   then
+    dvips "$elej".dvi
+    ps2pdf -dALLOWPSTRANSPARENCY "$elej".ps
+   fi
    if [ "$solutions" -ge "1" ]
    then
     #dvipdf sol_"$elej".dvi
     #dvipdfm sol_"$elej".dvi
-    dvips sol_"$elej".dvi
-    ps2pdf -dALLOWPSTRANSPARENCY sol_"$elej".ps
+    if [[ "$pdflatex" != "1" ]]
+    then
+     dvips sol_"$elej".dvi
+     ps2pdf -dALLOWPSTRANSPARENCY sol_"$elej".ps
+    fi
    fi
    if [ "$solutions" == "2" ]
    then
-    dvips fullsol_"$elej".dvi
-    ps2pdf -dALLOWPSTRANSPARENCY fullsol_"$elej".ps
+    if [[ "$pdflatex" != "1" ]]
+    then
+     dvips fullsol_"$elej".dvi
+     ps2pdf -dALLOWPSTRANSPARENCY fullsol_"$elej".ps
+    fi
    fi
  
    if [ "$solutions" -ge "1" ]

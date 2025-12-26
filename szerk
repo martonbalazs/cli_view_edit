@@ -206,6 +206,11 @@ do
    then
     files="*.bib $files"
    fi
+   cp *.tex $wkdir/$k
+   if [ "$?" == 0 ]
+   then
+    files="*.tex $files"
+   fi
    cp *.pdf $wkdir/$k
    if [ "$?" == 0 ]
    then

@@ -38,6 +38,8 @@ fi
 while true
 do
 
+# It's best not to constantly engage cpucsekk, so:
+sleep 1
 # This is from my cli_util repo:
  silent_cpucsekk
 

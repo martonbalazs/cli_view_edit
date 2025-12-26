@@ -1,6 +1,5 @@
 #!/bin/bash
-# 2018-01-13
-# File opener for the slo queue, called by slo. Needs "v", and "silent_cpucsekk" from my cli_util repo (or you could just replace that line by "sleep 1").
+# File opener for the slo queue, called by slo. Needs "v".
 
 mkdir -p "/tmp/svlo_$USER/"
 

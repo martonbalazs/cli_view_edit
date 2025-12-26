@@ -107,7 +107,7 @@ do
    mybr "$i" &
   fi
  
-  if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]]
+  if [[ "$veg" == "jpg" ]] || [[ "$veg" == "JPG" ]] || [[ "$veg" == "jpeg" ]] || [[ "$veg" == "JPEG" ]] || [[ "$veg" == "gif" ]] || [[ "$veg" == "GIF" ]] || [[ "$veg" == "png" ]] || [[ "$veg" == "PNG" ]] || [[ "$veg" == "webp" ]]
   then
    eog "$i"
   fi
@@ -140,6 +140,7 @@ do
  
    cp "$i" /tmp/$k
    cp *.bib /tmp/$k
+   cp *.tex /tmp/$k
    cp *.pdf /tmp/$k
    cp *.png /tmp/$k
    cp *.jpg /tmp/$k
@@ -333,7 +334,7 @@ do
      then
       bibtex sol_"$elej".aux
      fi
-     if [ "$solutions" == "1" ]
+     if [ "$solutions" == "2" ]
      then
       bibtex fullsol_"$elej".aux
      fi
